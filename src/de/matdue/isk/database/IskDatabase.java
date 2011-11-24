@@ -51,7 +51,8 @@ public class IskDatabase extends SQLiteOpenHelper {
 				new String[] {
 				CharacterTable.ID,
 				CharacterTable.NAME,
-				CharacterTable.SELECTED
+				CharacterTable.SELECTED,
+				CharacterTable.CHARACTER_ID
 			},
 			CharacterTable.API_ID + "=?",  // where
 			new String[] { 
