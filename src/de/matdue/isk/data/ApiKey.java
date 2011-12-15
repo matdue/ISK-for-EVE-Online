@@ -4,7 +4,7 @@ public class ApiKey {
 	
 	private long _id;
 	
-	private int key;
+	private String key;
 	private String code;
 
 	
@@ -16,11 +16,11 @@ public class ApiKey {
 		this._id = _id;
 	}
 	
-	public int getKey() {
+	public String getKey() {
 		return key;
 	}
 	
-	public void setKey(int key) {
+	public void setKey(String key) {
 		this.key = key;
 	}
 	

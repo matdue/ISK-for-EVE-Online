@@ -1,5 +1,8 @@
 package de.matdue.isk.database;
 
+import java.util.List;
+
+import de.matdue.isk.data.ApiKey;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -45,6 +48,28 @@ public class IskDatabase extends SQLiteOpenHelper {
 		return cursor;
 	}
 	
+	public String getApiKeyID(long id) {
+		SQLiteDatabase db = getReadableDatabase();
+		try {
+			Cursor cursor = db.query(ApiKeyTable.TABLE_NAME, 
+					new String[] { ApiKeyColumns.KEY }, 
+					ApiKeyColumns.ID + "=?",      // where
+					new String[] { Long.toString(id) },  // where arguments
+					null,  // group by
+					null,  // having
+					null); // order by
+			if (cursor.moveToNext()) {
+				String result = cursor.getString(0);
+				cursor.close();
+				return result;
+			}
+		} finally {
+			db.close();
+		}
+		
+		return null;
+	}
+	
 	public Cursor getCharacterCursor(long apiId) {
 		SQLiteDatabase db = getReadableDatabase();
 		Cursor cursor = db.query(CharacterTable.TABLE_NAME,
@@ -79,34 +104,22 @@ public class IskDatabase extends SQLiteOpenHelper {
 		}
 	}
 	
-	public boolean dummyRead() {
-		boolean hasEntries = false;
-		SQLiteDatabase db = getReadableDatabase();
-		Cursor cursor = null;
+	public void deleteApiKey(long id) {
+		SQLiteDatabase db = getWritableDatabase();
 		try {
-			cursor = db.query(ApiKeyTable.TABLE_NAME,
-					new String[] {
-						ApiKeyTable.ID,
-						ApiKeyTable.KEY,
-						ApiKeyTable.CODE
-					},
-					null,  // where
-					null,  // where arguments
-					null,  // group by
-					null,  // having
-					null); // order by
-			while (cursor.moveToNext()) {
-				hasEntries = true;
-			}
+			db.delete(CharacterTable.TABLE_NAME,
+					CharacterColumns.API_ID + "=?",
+					new String[] { Long.toString(id) });
+			
+			db.delete(ApiKeyTable.TABLE_NAME, 
+					ApiKeyColumns.ID + "=?", 
+					new String[] { Long.toString(id) });
 		} finally {
-			cursor.close();
 			db.close();
 		}
-		
-		return hasEntries;
 	}
 	
-	public void insertSampleData() {
+	public void insertApiKey(ApiKey apiKey, List<de.matdue.isk.data.Character> characters) {
 		SQLiteDatabase db = getWritableDatabase();
 		InsertHelper apiKeyInsertHelper = new InsertHelper(db, ApiKeyTable.TABLE_NAME);
 		InsertHelper characterInsertHelper = new InsertHelper(db, CharacterTable.TABLE_NAME);
@@ -114,18 +127,20 @@ public class IskDatabase extends SQLiteOpenHelper {
 			db.beginTransaction();
 			
 			ContentValues values = new ContentValues();
-			values.put(ApiKeyColumns.KEY, 19629);
-			values.put(ApiKeyColumns.CODE, "leVPxDuOwXauU7xeEwDN85p1Wsgs8YmfQew1VqkFVaenthfemRjOYt4TxDCi9J0t");
+			values.put(ApiKeyColumns.KEY, apiKey.getKey());
+			values.put(ApiKeyColumns.CODE, apiKey.getCode());
 			long apiKeyId = apiKeyInsertHelper.insert(values);
 			
-			values = new ContentValues();
-			values.put(CharacterColumns.API_ID, apiKeyId);
-			values.put(CharacterColumns.CHARACTER_ID, 90173007);
-			values.put(CharacterColumns.NAME, "Quaax");
-			values.put(CharacterColumns.CORPORATION_ID, 1373425524);
-			values.put(CharacterColumns.CORPORATION_NAME, "GER Weyland Yutani Corp");
-			values.put(CharacterColumns.SELECTED, true);
-			characterInsertHelper.insert(values);
+			for (de.matdue.isk.data.Character character : characters) {
+				values = new ContentValues();
+				values.put(CharacterColumns.API_ID, apiKeyId);
+				values.put(CharacterColumns.CHARACTER_ID, character.getCharacterId());
+				values.put(CharacterColumns.NAME, character.getName());
+				values.put(CharacterColumns.CORPORATION_ID, character.getCorporationId());
+				values.put(CharacterColumns.CORPORATION_NAME, character.getCorporationName());
+				values.put(CharacterColumns.SELECTED, character.isSelected());
+				characterInsertHelper.insert(values);
+			}
 			
 			db.setTransactionSuccessful();
 		} finally {

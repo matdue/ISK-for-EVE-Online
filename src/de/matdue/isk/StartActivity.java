@@ -1,7 +1,6 @@
 package de.matdue.isk;
 
 import de.matdue.isk.R;
-import de.matdue.isk.database.IskDatabase;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,12 +25,6 @@ public class StartActivity extends Activity {
 			}
 
 		});
-		
-		IskDatabase iskDatabase = new IskDatabase(this);
-		if (!iskDatabase.dummyRead()) {
-			iskDatabase.insertSampleData();
-		}
-		iskDatabase.close();
 	}
 
 }

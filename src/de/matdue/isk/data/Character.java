@@ -5,9 +5,9 @@ public class Character {
 	private long _id;
 	
 	private long apiId;
-	private int characterId;
+	private String characterId;
 	private String name;
-	private int corporationId;
+	private String corporationId;
 	private String corporationName;
 	private boolean selected;
 	
@@ -27,11 +27,11 @@ public class Character {
 		this.apiId = apiId;
 	}
 	
-	public int getCharacterId() {
+	public String getCharacterId() {
 		return characterId;
 	}
 	
-	public void setCharacterId(int characterId) {
+	public void setCharacterId(String characterId) {
 		this.characterId = characterId;
 	}
 	
@@ -43,11 +43,11 @@ public class Character {
 		this.name = name;
 	}
 	
-	public int getCorporationId() {
+	public String getCorporationId() {
 		return corporationId;
 	}
 	
-	public void setCorporationId(int corporationId) {
+	public void setCorporationId(String corporationId) {
 		this.corporationId = corporationId;
 	}
 	

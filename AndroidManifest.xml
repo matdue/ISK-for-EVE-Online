@@ -19,7 +19,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="de.matdue.isk.PilotsActivity"></activity>
+        <activity android:name=".PilotsActivity"></activity>
+        <activity android:name=".ApiCallbackActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="eve" android:host="api.eveonline.com" android:path="/installKey"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".ApiKeyActivity"><!--  android:launchMode="singleTask"  -->
+        </activity>
     </application>
 
 </manifest>

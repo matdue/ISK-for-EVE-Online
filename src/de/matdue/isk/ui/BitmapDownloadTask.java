@@ -3,6 +3,7 @@ package de.matdue.isk.ui;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.Map;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,12 +19,14 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 
 	private CacheManager cacheManager;
 	private BitmapDownloadManager bitmapDownloadManager;
+	private Map<String, Bitmap> memoryCache;
 
 	public BitmapDownloadTask(ImageView imageView, CacheManager cacheManager,
-			BitmapDownloadManager bitmapDownloadManager) {
+			BitmapDownloadManager bitmapDownloadManager, Map<String, Bitmap> memoryCache) {
 		imageViewReference = new WeakReference<ImageView>(imageView);
 		this.cacheManager = cacheManager;
 		this.bitmapDownloadManager = bitmapDownloadManager;
+		this.memoryCache = memoryCache;
 
 		DownloadingDrawable downloadingDrawable = new DownloadingDrawable(this);
 		imageView.setImageDrawable(downloadingDrawable);
@@ -34,6 +37,9 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 		InputStream cachedImage = cacheManager.getStream(params[0]);
 		if (cachedImage != null) {
 			Bitmap bitmap = BitmapFactory.decodeStream(cachedImage);
+			if (memoryCache != null) {
+				memoryCache.put(params[0], bitmap);
+			}
 			try {
 				cachedImage.close();
 			} catch (IOException e) {
@@ -43,6 +49,9 @@ public class BitmapDownloadTask extends AsyncTask<String, Void, Bitmap> {
 		}
 		
 		Bitmap bitmap = bitmapDownloadManager.downloadBitmap(params[0]);
+		if (memoryCache != null) {
+			memoryCache.put(params[0], bitmap);
+		}
 		return bitmap;
 	}
 
