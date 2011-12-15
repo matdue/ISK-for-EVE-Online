@@ -40,10 +40,10 @@ public class PilotsActivity extends ExpandableListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		bitmapDownloadManager = new BitmapDownloadManager(cacheManager);
 		cacheManager = new CacheManager(getCacheDir());
 		cacheManager.cleanup();  // TODO: not that often...
 		bitmapMemoryCache = new HashMap<String, Bitmap>();
+		bitmapDownloadManager = new BitmapDownloadManager(cacheManager);
 
 		iskDatabase = new IskDatabase(this);
 		Cursor apiKeyCursor = iskDatabase.getApiKeyCursor();

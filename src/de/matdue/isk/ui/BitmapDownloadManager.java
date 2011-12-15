@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpGet;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.http.AndroidHttpClient;
+import android.util.Log;
 
 public class BitmapDownloadManager {
 
@@ -59,6 +60,7 @@ public class BitmapDownloadManager {
 					HttpResponse response = httpClient.execute(request);
 					int statusCode = response.getStatusLine().getStatusCode();
 					if (statusCode != HttpStatus.SC_OK) {
+						Log.e("BitmapDownloadManager", url + ": " + statusCode);
 						return null;
 					}
 
@@ -83,6 +85,7 @@ public class BitmapDownloadManager {
 						}
 					}
 				} catch (Exception e) {
+					Log.e("BitmapDownloadManager", "Error downloading " + url, e);
 					request.abort();
 				} finally {
 					httpClient.close();
@@ -96,7 +99,7 @@ public class BitmapDownloadManager {
 		try {
 			return result.get();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.e("BitmapDownloadManager", "Error downloading " + url, e);
 		}
 
 		return null;
