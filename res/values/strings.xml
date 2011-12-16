@@ -21,5 +21,6 @@
     <string name="pilots_key_error_validate">Unable to verify API key, please try again.</string>
     <string name="pilots_key_error_accessmask">Insufficient access mask. Please check API key.</string>
     <string name="pilots_key_error_type">Character key only is allowed.</string>
+    <string name="pilots_context_refresh">Refresh characters</string>
 
 </resources>

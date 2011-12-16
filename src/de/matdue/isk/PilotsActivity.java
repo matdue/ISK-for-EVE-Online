@@ -21,7 +21,6 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 import de.matdue.isk.database.ApiKeyColumns;
 import de.matdue.isk.database.IskDatabase;
 import de.matdue.isk.ui.BitmapDownloadManager;
@@ -116,6 +115,10 @@ public class PilotsActivity extends ExpandableListActivity {
 				iskDatabase.deleteApiKey(info.id);
 				refreshAdapter();
 				return true;
+				
+			case R.id.pilots_context_refresh:
+				// TODO: Implementation
+				return true;
 			}
 		}
 
@@ -133,10 +136,6 @@ public class PilotsActivity extends ExpandableListActivity {
 		switch (item.getItemId()) {
 		case R.id.pilots_add:
 			startActivityForResult(new Intent(this, ApiKeyActivity.class), ApiKeyActivityRequestCode);
-			return true;
-			
-		case R.id.pilots_refresh:
-			Toast.makeText(this, "Refresh", Toast.LENGTH_SHORT).show();
 			return true;
 			
 		default:

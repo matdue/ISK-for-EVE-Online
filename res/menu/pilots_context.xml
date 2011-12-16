@@ -3,5 +3,6 @@
 
     <item android:id="@+id/pilots_context_remove"
     	android:title="@string/pilots_context_remove" />
+    <item android:id="@+id/pilots_context_refresh" android:title="@string/pilots_context_refresh"></item>
 
 </menu>
