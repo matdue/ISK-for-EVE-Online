@@ -35,6 +35,9 @@ public class PilotsActivity extends ExpandableListActivity {
 	private BitmapDownloadManager bitmapDownloadManager;
 	private CacheManager cacheManager;
 	private HashMap<String, Bitmap> bitmapMemoryCache;
+	
+	// For onPause/onResume: remember which groups are expanded, and which are not
+	private boolean[] expandedGroups;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +169,66 @@ public class PilotsActivity extends ExpandableListActivity {
 			cb.toggle();
 		}
 		return true;
+	}
+	
+	private void saveExpansionState() {
+		ExpandableListView view = getExpandableListView();
+		PilotsExpandableListAdapter adapter = (PilotsExpandableListAdapter) getExpandableListAdapter();
+		int groupCount = adapter.getGroupCount();
+		expandedGroups = new boolean[groupCount];
+		for (int i = 0; i < groupCount; ++i) {
+			expandedGroups[i] = view.isGroupExpanded(i);
+		}
+	}
+	
+	private void restoreExpansionState() {
+		ExpandableListView view = getExpandableListView();
+		PilotsExpandableListAdapter adapter = (PilotsExpandableListAdapter) getExpandableListAdapter();
+		int groupCount = adapter.getGroupCount();
+		if (expandedGroups != null && expandedGroups.length == groupCount) {
+			for (int i = 0; i < groupCount; ++i) {
+				if (expandedGroups[i]) {
+					view.expandGroup(i);
+				} else {
+					view.collapseGroup(i);
+				}
+			}
+		}
+		expandedGroups = null;  // We don't need it any more
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		// Save group expansions
+		saveExpansionState();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		// Restore group expansions
+		restoreExpansionState();
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		// Save group expansions
+		saveExpansionState();
+		outState.putBooleanArray("expandedGroups", expandedGroups);
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		super.onRestoreInstanceState(state);
+		
+		// Restore group expansions
+		expandedGroups = state.getBooleanArray("expandedGroups");
+		restoreExpansionState();
 	}
 
 	public class PilotsExpandableListAdapter extends SimpleCursorTreeAdapter {
