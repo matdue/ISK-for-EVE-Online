@@ -8,8 +8,14 @@ public class CacheInformation {
 	public Date cachedUntil;
 	public Object cachedData;
 	
-	public static String buildHashKey(String url, String keyID, String vCode) {
-		return url + "-" + keyID + "-" + vCode;
+	public static String buildHashKey(String url, String... attributes) {
+		StringBuilder result = new StringBuilder();
+		result.append(url);
+		for (String attribute : attributes) {
+			result.append("-").append(attribute);
+		}
+		
+		return result.toString();
 	}
 
 }

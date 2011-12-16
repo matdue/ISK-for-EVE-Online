@@ -22,5 +22,7 @@
     <string name="pilots_key_error_accessmask">Insufficient access mask. Please check API key.</string>
     <string name="pilots_key_error_type">Character key only is allowed.</string>
     <string name="pilots_context_refresh">Refresh characters</string>
+    <string name="start_character_portrait">Character portrait</string>
+    <string name="start_character_choose">Choose character</string>
 
 </resources>

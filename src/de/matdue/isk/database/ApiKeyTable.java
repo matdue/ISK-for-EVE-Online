@@ -7,7 +7,7 @@ public class ApiKeyTable implements ApiKeyColumns {
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " (" +
 		ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-		KEY + " INTEGER," +
+		KEY + " TEXT," +
 		CODE + " TEXT" +
 		")";
 	

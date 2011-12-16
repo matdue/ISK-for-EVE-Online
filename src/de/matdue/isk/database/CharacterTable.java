@@ -8,9 +8,9 @@ public class CharacterTable implements CharacterColumns {
 			"CREATE TABLE " + TABLE_NAME + " (" +
 			ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 			API_ID + " INTEGER," +
-			CHARACTER_ID + " INTEGER," +
+			CHARACTER_ID + " TEXT," +
 			NAME + " TEXT," +
-			CORPORATION_ID + " INTEGER," +
+			CORPORATION_ID + " TEXT," +
 			CORPORATION_NAME + " TEXT," +
 			SELECTED + " INTEGER" +
 			")";

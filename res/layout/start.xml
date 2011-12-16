@@ -4,6 +4,55 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <RelativeLayout
+        android:id="@+id/start_balance_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dip"
+        android:clickable="true" >
+
+        <ImageView
+            android:id="@+id/start_character_image"
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="3dip"
+            android:maxHeight="64dip"
+            android:maxWidth="64dip"
+            android:contentDescription="@string/start_character_portrait"
+            android:scaleType="centerInside" />
+        <ImageView
+            android:id="@+id/start_character_choose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/start_character_image"
+            android:layout_alignParentRight="true"
+            android:contentDescription="@string/start_character_choose"
+            android:src="@android:drawable/arrow_down_float" />
+        
+        <TextView
+            android:id="@+id/start_character_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_margin="5dip"
+            android:layout_toRightOf="@id/start_character_image"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/start_character_balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/start_character_name"
+            android:layout_margin="5dip"
+            android:layout_toRightOf="@id/start_character_image"
+            android:layout_toLeftOf="@id/start_character_choose"
+            android:lines="1"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </RelativeLayout>
+
     <Button
         android:id="@+id/pilots"
         android:layout_width="wrap_content"

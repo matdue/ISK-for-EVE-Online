@@ -1,5 +1,6 @@
 package de.matdue.isk.database;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.matdue.isk.data.ApiKey;
@@ -13,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class IskDatabase extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "isk.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 	
 	public IskDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -50,8 +51,9 @@ public class IskDatabase extends SQLiteOpenHelper {
 	
 	public String getApiKeyID(long id) {
 		SQLiteDatabase db = getReadableDatabase();
+		Cursor cursor = null;
 		try {
-			Cursor cursor = db.query(ApiKeyTable.TABLE_NAME, 
+			cursor = db.query(ApiKeyTable.TABLE_NAME, 
 					new String[] { ApiKeyColumns.KEY }, 
 					ApiKeyColumns.ID + "=?",      // where
 					new String[] { Long.toString(id) },  // where arguments
@@ -59,11 +61,12 @@ public class IskDatabase extends SQLiteOpenHelper {
 					null,  // having
 					null); // order by
 			if (cursor.moveToNext()) {
-				String result = cursor.getString(0);
-				cursor.close();
-				return result;
+				return cursor.getString(0);
 			}
 		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
 			db.close();
 		}
 		
@@ -151,4 +154,74 @@ public class IskDatabase extends SQLiteOpenHelper {
 		}
 	}
 
+	public String[] queryCharacter(String characterID) {
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor cursor = null;
+		try {
+			// Lookup character
+			cursor = db.query(CharacterTable.TABLE_NAME, 
+					new String[] { CharacterColumns.NAME, CharacterColumns.API_ID },
+					CharacterColumns.CHARACTER_ID + "=?", 
+					new String[] { characterID }, 
+					null,   // groupBy
+					null,   // having
+					null);  // orderBy
+			if (cursor.moveToNext()) {
+				String characterName = cursor.getString(0);
+				String apiID = cursor.getString(1);
+				cursor.close();
+				
+				// Lookup corresponding API login
+				cursor = db.query(ApiKeyTable.TABLE_NAME, 
+						new String[] { ApiKeyColumns.KEY, ApiKeyColumns.CODE }, 
+						ApiKeyColumns.ID + "=?",      // where
+						new String[] { apiID },  // where arguments
+						null,  // group by
+						null,  // having
+						null); // order by
+				if (cursor.moveToNext()) {
+					String keyID = cursor.getString(0);
+					String vCode = cursor.getString(1);
+					
+					return new String[] { characterID, characterName, keyID, vCode };
+				}
+			}
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+			db.close();
+		}
+		
+		return null;
+	}
+	
+	public List<de.matdue.isk.data.Character> queryAllCharacters() {
+		List<de.matdue.isk.data.Character> result = new ArrayList<de.matdue.isk.data.Character>();
+		SQLiteDatabase db = getReadableDatabase();
+		try {
+			Cursor cursor = db.query(true, 
+					CharacterTable.TABLE_NAME, 
+					new String[] { CharacterColumns.NAME, CharacterColumns.CHARACTER_ID }, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null);
+			while (cursor.moveToNext()) {
+				de.matdue.isk.data.Character character = new de.matdue.isk.data.Character();
+				character.setName(cursor.getString(0));
+				character.setCharacterId(cursor.getString(1));
+				
+				result.add(character);
+			}
+			cursor.close();
+		} finally {
+			db.close();
+		}
+		
+		return result;
+	}
+	
 }

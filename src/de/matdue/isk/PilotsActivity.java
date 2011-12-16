@@ -261,7 +261,7 @@ public class PilotsActivity extends ExpandableListActivity {
 
 			ImageView imageView = (ImageView) view.findViewById(R.id.pilot_image);
 			String imageViewUrl = (String) imageView.getTag();
-			String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(cursor.getInt(3), 64);
+			String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(cursor.getString(3), 64);
 			if (!imageUrl.equals(imageViewUrl)) {
 				imageView.setTag(imageUrl);
 				Bitmap bitmap = bitmapMemoryCache.get(imageUrl);
