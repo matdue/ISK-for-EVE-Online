@@ -29,6 +29,8 @@ import de.matdue.isk.ui.BitmapDownloadTask;
 import de.matdue.isk.ui.CacheManager;
 
 public class PilotsActivity extends ExpandableListActivity {
+	
+	private static final int ApiKeyActivityRequestCode = 0;
 
 	private IskDatabase iskDatabase;
 
@@ -67,6 +69,11 @@ public class PilotsActivity extends ExpandableListActivity {
 		}
 
 		registerForContextMenu(getExpandableListView());
+		
+		// If no API key has been added yet, jump to activity to do that
+		if (groupCount == 0) {
+			startActivityForResult(new Intent(this, ApiKeyActivity.class), ApiKeyActivityRequestCode);
+		}
 	}
 	
 	@Override
@@ -125,7 +132,7 @@ public class PilotsActivity extends ExpandableListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.pilots_add:
-			startActivityForResult(new Intent(this, ApiKeyActivity.class), 0);
+			startActivityForResult(new Intent(this, ApiKeyActivity.class), ApiKeyActivityRequestCode);
 			return true;
 			
 		case R.id.pilots_refresh:
@@ -140,7 +147,7 @@ public class PilotsActivity extends ExpandableListActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == 0 && resultCode == RESULT_OK) {
+		if (requestCode == ApiKeyActivityRequestCode && resultCode == RESULT_OK) {
 			// New API key added
 			String newKeyID = data.getExtras().getString("keyID");
 			refreshAdapter();
