@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import de.matdue.isk.data.ApiKey;
 import de.matdue.isk.database.IskDatabase;
 import de.matdue.isk.eve.Account;
-import de.matdue.isk.eve.Api;
+import de.matdue.isk.eve.EveApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -116,7 +116,7 @@ public class ApiKeyActivity extends Activity {
 			id = params[0];
 			code = params[1];
 			
-			Api api = new Api();
+			EveApi api = new EveApi();
 			Account account = api.validateKey(id, code);
 			return account;
 		}

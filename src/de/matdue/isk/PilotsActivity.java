@@ -1,10 +1,13 @@
 package de.matdue.isk;
 
 import java.util.HashMap;
+import java.util.List;
 
 import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -21,6 +24,7 @@ import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.TextView;
+import de.matdue.isk.data.Character;
 import de.matdue.isk.database.ApiKeyColumns;
 import de.matdue.isk.database.IskDatabase;
 import de.matdue.isk.ui.BitmapDownloadManager;
@@ -114,6 +118,9 @@ public class PilotsActivity extends ExpandableListActivity {
 			case R.id.pilots_context_remove:
 				iskDatabase.deleteApiKey(info.id);
 				refreshAdapter();
+				
+				// Update current character by removing it, if applicable
+				setCurrentCharacter();
 				return true;
 				
 			case R.id.pilots_context_refresh:
@@ -163,6 +170,48 @@ public class PilotsActivity extends ExpandableListActivity {
 					view.smoothScrollToPosition(iGroup);
 					break;
 				}
+			}
+			
+			// Update all characters
+			Intent msgIntent = new Intent(this, EveApiQueryService.class);
+			startService(msgIntent);
+			
+			// Update current character to new API key if applicable
+			setCurrentCharacter();
+		}
+	}
+	
+	private void setCurrentCharacter() {
+		SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+		String characterID = preferences.getString("startCharacterID", null);
+		List<Character> allCharacters = iskDatabase.queryAllCharacters();
+		
+		// Take first character as new current character, if none has been defined yet
+		if (characterID == null && !allCharacters.isEmpty()) {
+			characterID = allCharacters.get(0).getCharacterId();
+			Editor editor = preferences.edit();
+			editor.putString("startCharacterID", characterID);
+			editor.apply();
+		}
+		// Remove current character if no character is known at all
+		else if (characterID != null && allCharacters.isEmpty()) {
+			Editor editor = preferences.edit();
+			editor.remove("startCharacterID");
+			editor.apply();
+		}
+		// Update current character if it is not known any more
+		else if (characterID != null && !allCharacters.isEmpty()) {
+			boolean characterIDknown = false;
+			for (Character character : allCharacters) {
+				if (character.getName().equals(characterID)) {
+					characterIDknown = true;
+					break;
+				}
+			}
+			if (!characterIDknown) {
+				Editor editor = preferences.edit();
+				editor.remove("startCharacterID");
+				editor.apply();
 			}
 		}
 	}

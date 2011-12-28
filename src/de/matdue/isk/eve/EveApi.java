@@ -28,7 +28,7 @@ import android.util.Log;
 import android.util.Xml;
 import android.util.Xml.Encoding;
 
-public class Api {
+public class EveApi {
 	
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static final String AGENT = "Android de.matdue.isk";
@@ -86,7 +86,7 @@ public class Api {
 			HttpResponse response = httpClient.execute(request);
 			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode != HttpStatus.SC_OK) {
-				Log.e(Api.class.toString(), "API returned with code " + statusCode);
+				Log.e(EveApi.class.toString(), "API returned with code " + statusCode);
 				return false;
 			}
 			
@@ -94,7 +94,7 @@ public class Api {
 			inputStream = entity.getContent();
 			Xml.parse(inputStream, Encoding.UTF_8, xmlParser);
 		} catch (Exception e) {
-			Log.e(Api.class.toString(), "Error in API communication", e);
+			Log.e(EveApi.class.toString(), "Error in API communication", e);
 			return false;
 		} finally {
 			if (inputStream != null) {

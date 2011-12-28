@@ -6,6 +6,9 @@
 
     <uses-sdk android:minSdkVersion="10" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -28,8 +31,16 @@
                 <data android:scheme="eve" android:host="api.eveonline.com" android:path="/installKey"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ApiKeyActivity"><!--  android:launchMode="singleTask"  -->
+        <activity android:name=".ApiKeyActivity">
         </activity>
+        <service android:name=".EveApiQueryService"></service>
+        <service android:name=".EveApiUpdaterService"></service>
+        <receiver android:name="com.commonsware.cwac.wakeful.AlarmReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+            <meta-data android:resource="@xml/wakeful" android:name="com.commonsware.cwac.wakeful"/>
+        </receiver>
     </application>
 
 </manifest>

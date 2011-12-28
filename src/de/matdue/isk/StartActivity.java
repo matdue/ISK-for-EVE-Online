@@ -7,33 +7,35 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import de.matdue.isk.R;
-import de.matdue.isk.data.Character;
-import de.matdue.isk.database.IskDatabase;
-import de.matdue.isk.eve.AccountBalance;
-import de.matdue.isk.eve.Api;
-import de.matdue.isk.ui.BitmapDownloadManager;
-import de.matdue.isk.ui.BitmapDownloadTask;
-import de.matdue.isk.ui.CacheManager;
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+import de.matdue.isk.data.Balance;
+import de.matdue.isk.data.Character;
+import de.matdue.isk.database.IskDatabase;
+import de.matdue.isk.ui.BitmapDownloadManager;
+import de.matdue.isk.ui.BitmapDownloadTask;
+import de.matdue.isk.ui.CacheManager;
 
 public class StartActivity extends Activity {
+	
+	private EveApiQueryReceiver eveApiQueryReceiver;
 	
 	private IskDatabase iskDatabase;
 	
@@ -59,8 +61,7 @@ public class StartActivity extends Activity {
 		pilotsButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivity(new Intent(StartActivity.this,
-						PilotsActivity.class));
+				startActivity(new Intent(StartActivity.this, PilotsActivity.class));
 			}
 		});
 		
@@ -73,6 +74,8 @@ public class StartActivity extends Activity {
 				showChooseCharacterDialog(characterID);
 			}
 		});
+		
+		WakefulIntentService.scheduleAlarms(new EveApiUpdaterListener(), this, false);
 	}
 	
 	@Override
@@ -84,10 +87,73 @@ public class StartActivity extends Activity {
 	}
 	
 	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		unregisterReceiver(eveApiQueryReceiver);
+	}
+	
+	@Override
 	protected void onResume() {
 		super.onResume();
 		
-		displayBalance();
+		updateCurrentCharacter();
+		
+		IntentFilter filter = new IntentFilter(EveApiQueryReceiver.ACTION_RESP);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        eveApiQueryReceiver = new EveApiQueryReceiver(){
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String characterId = intent.getStringExtra("characterId");
+				updateCharacter(characterId);
+			}
+		};
+        registerReceiver(eveApiQueryReceiver, filter);
+	}
+	
+	private void updateCharacter(String characterId) {
+		new AsyncTask<String, Void, Object[]>() {
+			@Override
+			protected Object[] doInBackground(String... params) {
+				Character character = iskDatabase.queryCharacter(params[0]);
+				Balance balance = iskDatabase.queryBalance(params[0]);
+				return new Object[] { params[0], character, balance };
+			}
+			
+			protected void onPostExecute(Object[] result) {
+				// Parse result
+				String characterID = (String) result[0];
+				Character character = (Character) result[1];
+				Balance balance = (Balance) result[2];
+				
+				// Character name
+				if (character != null) {
+					TextView characterNameView = (TextView) findViewById(R.id.start_character_name);
+					characterNameView.setText(character.getName());
+					characterNameView.setTag(characterID);
+				}
+				
+				// Character portrait
+				ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
+				String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(characterID, 128);
+				Bitmap bitmap = bitmapMemoryCache.get(imageUrl);
+				if (bitmap != null) {
+					imageView.setImageBitmap(bitmap);
+				} else {
+					new BitmapDownloadTask(imageView, cacheManager,	bitmapDownloadManager, bitmapMemoryCache).execute(imageUrl);
+				}
+				
+				// Balance
+				if (balance != null) {
+					NumberFormat formatter = NumberFormat.getInstance();
+					formatter.setMinimumFractionDigits(2);
+					formatter.setMaximumFractionDigits(2);
+					String sBalance = formatter.format(balance.getBalance()) + " ISK";
+					TextView balanceView = (TextView) findViewById(R.id.start_character_balance);
+					balanceView.setText(sBalance);
+				}
+			}
+		}.execute(characterId);
 	}
 	
 	private void showChooseCharacterDialog(String currentCharacterID) {
@@ -130,85 +196,22 @@ public class StartActivity extends Activity {
 				Character c = characters.get(which);
 				SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
 				Editor editor = preferences.edit();
-				editor.putString("startCharacterName", c.getName());
 				editor.putString("startCharacterID", c.getCharacterId());
 				editor.apply();
+				
+				updateCharacter(c.getCharacterId());
+				
 				dialog.dismiss();
 			}
 		});
 		builder.create().show();
 	}
 	
-	private void displayBalance() {
+	private void updateCurrentCharacter() {
 		SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
-		String characterName = preferences.getString("startCharacterName", null);
 		String characterID = preferences.getString("startCharacterID", null);
-		
-		// Predisplay character name
-		if (characterName != null) {
-			TextView characterNameView = (TextView) findViewById(R.id.start_character_name);
-			characterNameView.setText(characterName);
-		}
-		
-		// Predisplay character portrait
 		if (characterID != null) {
-			ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
-			String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(characterID, 128);
-			Bitmap bitmap = bitmapMemoryCache.get(imageUrl);
-			if (bitmap != null) {
-				imageView.setImageBitmap(bitmap);
-			} else {
-				new BitmapDownloadTask(imageView, cacheManager,	bitmapDownloadManager, bitmapMemoryCache).execute(imageUrl);
-			}
-		}
-		
-		// Start task to fetch current balance and display it
-		if (characterID != null) {
-			setProgressBarIndeterminateVisibility(true);
-			new AsyncTask<String, Void, AccountBalance>() {
-				private String[] characterData;  // Will contain information about character after doInBackground()
-				
-				@Override
-				protected AccountBalance doInBackground(String... params) {
-					// Load current character
-					characterData = iskDatabase.queryCharacter(params[0]);
-					if (characterData != null) {
-						// Query balance
-						Api eveApi = new Api();
-						AccountBalance accountBalance = eveApi.queryAccountBalance(characterData[2], characterData[3], characterData[0]);
-						return accountBalance;
-					}
-					
-					return null;
-				}
-				
-				protected void onPostExecute(AccountBalance result) {
-					setProgressBarIndeterminateVisibility(false);
-					if (result != null) {
-						// Display character name
-						TextView characterNameView = (TextView) findViewById(R.id.start_character_name);
-						characterNameView.setText(characterData[1]);
-						
-						// Format and display balance
-						NumberFormat formatter = NumberFormat.getInstance();
-						formatter.setMinimumFractionDigits(2);
-						formatter.setMaximumFractionDigits(2);
-						String sBalance = formatter.format(result.balance) + " ISK";
-						TextView balanceView = (TextView) findViewById(R.id.start_character_balance);
-						balanceView.setText(sBalance);
-						
-						// Load character picture
-						ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
-						String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(characterData[0], 128);
-						Bitmap bitmap = bitmapMemoryCache.get(imageUrl);
-						if (bitmap != null) {
-							imageView.setImageBitmap(bitmap);
-						} else {
-							new BitmapDownloadTask(imageView, cacheManager,	bitmapDownloadManager, bitmapMemoryCache).execute(imageUrl);
-						}
-					}
-				}
-			}.execute(characterID);
+			updateCharacter(characterID);
 		}
 	}
 	
