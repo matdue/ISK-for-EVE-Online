@@ -33,7 +33,6 @@
         </activity>
         <activity android:name=".ApiKeyActivity">
         </activity>
-        <service android:name=".EveApiQueryService"></service>
         <service android:name=".EveApiUpdaterService"></service>
         <receiver android:name="com.commonsware.cwac.wakeful.AlarmReceiver">
             <intent-filter>
