@@ -11,6 +11,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,7 +36,7 @@ import de.matdue.isk.ui.CacheManager;
 
 public class StartActivity extends Activity {
 	
-	private EveApiQueryReceiver eveApiQueryReceiver;
+	private BroadcastReceiver eveApiUpdaterReceiver;
 	
 	private IskDatabase iskDatabase;
 	
@@ -75,6 +76,7 @@ public class StartActivity extends Activity {
 			}
 		});
 		
+		// Make sure update service to be called regularly
 		WakefulIntentService.scheduleAlarms(new EveApiUpdaterListener(), this, false);
 	}
 	
@@ -90,25 +92,34 @@ public class StartActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 		
-		unregisterReceiver(eveApiQueryReceiver);
+		unregisterReceiver(eveApiUpdaterReceiver);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
+		// Update current character with data from database
 		updateCurrentCharacter();
 		
-		IntentFilter filter = new IntentFilter(EveApiQueryReceiver.ACTION_RESP);
+		// Register broadcast receiver: If character data has been updated in background,
+		// show latest data immediately
+		IntentFilter filter = new IntentFilter(EveApiUpdaterService.ACTION_RESP);
         filter.addCategory(Intent.CATEGORY_DEFAULT);
-        eveApiQueryReceiver = new EveApiQueryReceiver(){
+        eveApiUpdaterReceiver = new BroadcastReceiver(){
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				// Character has been updated in background
+				// => Update view now, if the current character has been updated
 				String characterId = intent.getStringExtra("characterId");
-				updateCharacter(characterId);
+				SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+				String currentCharacterID = preferences.getString("startCharacterID", null);
+				if (currentCharacterID != null && currentCharacterID.equals(characterId)) {
+					updateCharacter(characterId);
+				}
 			}
 		};
-        registerReceiver(eveApiQueryReceiver, filter);
+        registerReceiver(eveApiUpdaterReceiver, filter);
 	}
 	
 	private void updateCharacter(String characterId) {

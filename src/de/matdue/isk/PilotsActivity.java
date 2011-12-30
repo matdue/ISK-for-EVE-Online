@@ -3,6 +3,8 @@ package de.matdue.isk;
 import java.util.HashMap;
 import java.util.List;
 
+import com.commonsware.cwac.wakeful.WakefulIntentService;
+
 import android.app.ExpandableListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -173,8 +175,8 @@ public class PilotsActivity extends ExpandableListActivity {
 			}
 			
 			// Update all characters
-			Intent msgIntent = new Intent(this, EveApiQueryService.class);
-			startService(msgIntent);
+			Intent msgIntent = new Intent(this, EveApiUpdaterService.class);
+			WakefulIntentService.sendWakefulWork(this, msgIntent);
 			
 			// Update current character to new API key if applicable
 			setCurrentCharacter();
