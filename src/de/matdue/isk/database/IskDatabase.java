@@ -55,7 +55,6 @@ public class IskDatabase extends SQLiteOpenHelper {
 	
 	public String getApiKeyID(long id) {
 		SQLiteDatabase db = getReadableDatabase();
-		SQLiteDatabase db2 = getReadableDatabase();
 		Cursor cursor = null;
 		try {
 			cursor = db.query(ApiKeyTable.TABLE_NAME, 
@@ -72,7 +71,6 @@ public class IskDatabase extends SQLiteOpenHelper {
 			if (cursor != null) {
 				cursor.close();
 			}
-			db.close();
 		}
 		
 		return null;
@@ -100,31 +98,23 @@ public class IskDatabase extends SQLiteOpenHelper {
 	
 	public void setCharacterSelection(long id, boolean checked) {
 		SQLiteDatabase db = getWritableDatabase();
-		try {
-			ContentValues values = new ContentValues();
-			values.put(CharacterColumns.SELECTED, checked);
-			db.update(CharacterTable.TABLE_NAME, 
-					values, 
-					CharacterColumns.ID + "=?", 
-					new String[] { Long.toString(id) });
-		} finally {
-			db.close();
-		}
+		ContentValues values = new ContentValues();
+		values.put(CharacterColumns.SELECTED, checked);
+		db.update(CharacterTable.TABLE_NAME, 
+				values, 
+				CharacterColumns.ID + "=?", 
+				new String[] { Long.toString(id) });
 	}
 	
 	public void deleteApiKey(long id) {
 		SQLiteDatabase db = getWritableDatabase();
-		try {
-			db.delete(CharacterTable.TABLE_NAME,
-					CharacterColumns.API_ID + "=?",
-					new String[] { Long.toString(id) });
-			
-			db.delete(ApiKeyTable.TABLE_NAME, 
-					ApiKeyColumns.ID + "=?", 
-					new String[] { Long.toString(id) });
-		} finally {
-			db.close();
-		}
+		db.delete(CharacterTable.TABLE_NAME,
+				CharacterColumns.API_ID + "=?",
+				new String[] { Long.toString(id) });
+		
+		db.delete(ApiKeyTable.TABLE_NAME, 
+				ApiKeyColumns.ID + "=?", 
+				new String[] { Long.toString(id) });
 	}
 	
 	public void insertApiKey(ApiKey apiKey, List<de.matdue.isk.data.Character> characters) {
@@ -155,7 +145,6 @@ public class IskDatabase extends SQLiteOpenHelper {
 			db.endTransaction();
 			characterInsertHelper.close();
 			apiKeyInsertHelper.close();
-			db.close();
 		}
 	}
 
@@ -204,27 +193,23 @@ public class IskDatabase extends SQLiteOpenHelper {
 	public List<de.matdue.isk.data.Character> queryAllCharacters() {
 		List<de.matdue.isk.data.Character> result = new ArrayList<de.matdue.isk.data.Character>();
 		SQLiteDatabase db = getReadableDatabase();
-		try {
-			Cursor cursor = db.query(true, 
-					CharacterTable.TABLE_NAME, 
-					new String[] { CharacterColumns.NAME, CharacterColumns.CHARACTER_ID }, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null);
-			while (cursor.moveToNext()) {
-				de.matdue.isk.data.Character character = new de.matdue.isk.data.Character();
-				character.setName(cursor.getString(0));
-				character.setCharacterId(cursor.getString(1));
-				
-				result.add(character);
-			}
-			cursor.close();
-		} finally {
-			db.close();
+		Cursor cursor = db.query(true, 
+				CharacterTable.TABLE_NAME, 
+				new String[] { CharacterColumns.NAME, CharacterColumns.CHARACTER_ID }, 
+				null, 
+				null, 
+				null, 
+				null, 
+				null, 
+				null);
+		while (cursor.moveToNext()) {
+			de.matdue.isk.data.Character character = new de.matdue.isk.data.Character();
+			character.setName(cursor.getString(0));
+			character.setCharacterId(cursor.getString(1));
+			
+			result.add(character);
 		}
+		cursor.close();
 		
 		return result;
 	}
@@ -233,24 +218,20 @@ public class IskDatabase extends SQLiteOpenHelper {
 		de.matdue.isk.data.Character result = null;
 		
 		SQLiteDatabase db = getReadableDatabase();
-		try {
-			Cursor cursor = db.query(CharacterTable.TABLE_NAME, 
-					new String[] { CharacterColumns.NAME }, 
-					CharacterColumns.CHARACTER_ID + "=?", 
-					new String[] { characterId }, 
-					null, 
-					null, 
-					null, 
-					null);
-			if (cursor.moveToNext()) {
-				result = new de.matdue.isk.data.Character();
-				result.setCharacterId(characterId);
-				result.setName(cursor.getString(0));
-			}
-			cursor.close();
-		} finally {
-			db.close();
+		Cursor cursor = db.query(CharacterTable.TABLE_NAME, 
+				new String[] { CharacterColumns.NAME }, 
+				CharacterColumns.CHARACTER_ID + "=?", 
+				new String[] { characterId }, 
+				null, 
+				null, 
+				null, 
+				null);
+		if (cursor.moveToNext()) {
+			result = new de.matdue.isk.data.Character();
+			result.setCharacterId(characterId);
+			result.setName(cursor.getString(0));
 		}
+		cursor.close();
 		
 		return result;
 	}
@@ -259,24 +240,20 @@ public class IskDatabase extends SQLiteOpenHelper {
 		Balance result = null;
 		
 		SQLiteDatabase db = getReadableDatabase();
-		try {
-			Cursor cursor = db.query(BalanceTable.TABLE_NAME, 
-					new String[] { BalanceColumns.BALANCE }, 
-					BalanceColumns.CHARACTER_ID + "=?", 
-					new String[] { characterId }, 
-					null, 
-					null, 
-					null, 
-					null);
-			if (cursor.moveToNext()) {
-				result = new Balance();
-				result.setCharacterId(characterId);
-				result.setBalance(new BigDecimal(cursor.getString(0)));
-			}
-			cursor.close();
-		} finally {
-			db.close();
+		Cursor cursor = db.query(BalanceTable.TABLE_NAME, 
+				new String[] { BalanceColumns.BALANCE }, 
+				BalanceColumns.CHARACTER_ID + "=?", 
+				new String[] { characterId }, 
+				null, 
+				null, 
+				null, 
+				null);
+		if (cursor.moveToNext()) {
+			result = new Balance();
+			result.setCharacterId(characterId);
+			result.setBalance(new BigDecimal(cursor.getString(0)));
 		}
+		cursor.close();
 		
 		return result;
 	}
@@ -300,7 +277,6 @@ public class IskDatabase extends SQLiteOpenHelper {
 		} finally {
 			db.endTransaction();
 			balanceInsertHelper.close();
-			db.close();
 		}
 	}
 	
@@ -308,23 +284,19 @@ public class IskDatabase extends SQLiteOpenHelper {
 		ApiKey result = null;
 		
 		SQLiteDatabase db = getReadableDatabase();
-		try {
-			Cursor cursor = db.query(ApiKeyTable.TABLE_NAME + " INNER JOIN " + CharacterTable.TABLE_NAME + " ON " + ApiKeyTable.TABLE_NAME + "." + ApiKeyColumns.ID + " = " + CharacterTable.TABLE_NAME + "." + CharacterColumns.API_ID, 
-					new String[] { ApiKeyTable.TABLE_NAME + "." + ApiKeyColumns.KEY, ApiKeyTable.TABLE_NAME + "." + ApiKeyColumns.CODE }, 
-					CharacterTable.TABLE_NAME + "." + CharacterColumns.CHARACTER_ID + "=?", 
-					new String [] { characterId }, 
-					null, 
-					null, 
-					null);
-			if (cursor.moveToNext()) {
-				result = new ApiKey();
-				result.setKey(cursor.getString(0));
-				result.setCode(cursor.getString(1));
-			}
-			cursor.close();
-		} finally {
-			db.close();
+		Cursor cursor = db.query(ApiKeyTable.TABLE_NAME + " INNER JOIN " + CharacterTable.TABLE_NAME + " ON " + ApiKeyTable.TABLE_NAME + "." + ApiKeyColumns.ID + " = " + CharacterTable.TABLE_NAME + "." + CharacterColumns.API_ID, 
+				new String[] { ApiKeyTable.TABLE_NAME + "." + ApiKeyColumns.KEY, ApiKeyTable.TABLE_NAME + "." + ApiKeyColumns.CODE }, 
+				CharacterTable.TABLE_NAME + "." + CharacterColumns.CHARACTER_ID + "=?", 
+				new String [] { characterId }, 
+				null, 
+				null, 
+				null);
+		if (cursor.moveToNext()) {
+			result = new ApiKey();
+			result.setKey(cursor.getString(0));
+			result.setCode(cursor.getString(1));
 		}
+		cursor.close();
 		
 		return result;
 	}
