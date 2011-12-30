@@ -6,7 +6,9 @@ import de.matdue.isk.data.ApiKey;
 import de.matdue.isk.data.Balance;
 import de.matdue.isk.database.IskDatabase;
 import de.matdue.isk.eve.AccountBalance;
+import de.matdue.isk.eve.CacheInformation;
 import de.matdue.isk.eve.EveApi;
+import de.matdue.isk.eve.EveApiCache;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -74,7 +76,7 @@ public class EveApiQueryService extends IntentService {
 	}
 	
 	private void queryBalance(String characterId) {
-		EveApi eveApi = new EveApi();
+		EveApi eveApi = new EveApi(new EveApiCacheDatabase());
 		
 		ApiKey apiKey = iskDatabase.queryApiKey(characterId);
 		if (apiKey != null) {
@@ -86,6 +88,20 @@ public class EveApiQueryService extends IntentService {
 				iskDatabase.storeBalance(balance);
 			}
 		}
+	}
+	
+	private class EveApiCacheDatabase implements EveApiCache {
+
+		@Override
+		public boolean isCached(String key) {
+			return iskDatabase.isEveApiCacheValid(key);
+		}
+
+		@Override
+		public void cache(String key, CacheInformation cacheInformation) {
+			iskDatabase.storeEveApiCache(key, cacheInformation.cachedUntil);
+		}
+		
 	}
 
 }

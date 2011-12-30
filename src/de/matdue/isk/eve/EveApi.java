@@ -2,13 +2,10 @@ package de.matdue.isk.eve;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.TimeZone;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,33 +27,20 @@ import android.util.Xml.Encoding;
 
 public class EveApi {
 	
-	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final SimpleDateFormat dateFormatter;
 	private static final String AGENT = "Android de.matdue.isk";
 	private static final String URL_BASE = "https://api.eveonline.com";
 
-	private static final HashMap<String, SoftReference<CacheInformation>> cachedItems = new HashMap<String, SoftReference<CacheInformation>>();
+	private EveApiCache apiCache;
 	
 	static {
 		// EVE Online API always uses GMT
+		dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}
 	
-	private static Object lookupInCache(String cacheKey) {
-		SoftReference<CacheInformation> cachedData = cachedItems.get(cacheKey);
-		if (cachedData != null) {
-			CacheInformation cachedInformation = cachedData.get();
-			if (cachedInformation != null) {
-				boolean cachedDataValid = cachedInformation.cachedUntil.after(new Date());
-				if (cachedDataValid) {
-					Log.d("Api", "Cache hit " + cacheKey);
-					return cachedInformation.cachedData;
-				}
-			}
-			
-			cachedItems.remove(cacheKey);
-		}
-		
-		return null;
+	public EveApi(EveApiCache apiCache) {
+		this.apiCache = apiCache;
 	}
 	
 	private boolean queryApi(ContentHandler xmlParser, String url, String keyID, String vCode) {
@@ -124,12 +108,11 @@ public class EveApi {
 		
 		// Lookup in cache
 		String cacheKey = CacheInformation.buildHashKey(URL, keyID, vCode);
-		Account result = (Account) lookupInCache(cacheKey);
-		if (result != null) {
-			return result;
+		if (apiCache.isCached(cacheKey)) {
+			return null;
 		}
 		
-		result = new Account();
+		Account result = new Account();
 		CacheInformation cacheInformation = new CacheInformation();
 		
 		// Prepare XML parser
@@ -145,13 +128,12 @@ public class EveApi {
 			if (result.accessMask == 0 ||
 				result.type == null ||
 				result.characters.size() == 0) {
-				result = null;
+				return null;
 			}
 		}
 		
 		// Cache result
-		cacheInformation.cachedData = result;
-		cachedItems.put(cacheKey, new SoftReference<CacheInformation>(cacheInformation));
+		apiCache.cache(cacheKey, cacheInformation);
 		
 		return result;
 	}
@@ -219,12 +201,11 @@ public class EveApi {
 		
 		// Lookup in cache
 		String cacheKey = CacheInformation.buildHashKey(URL, keyID, vCode, characterID);
-		AccountBalance result = (AccountBalance) lookupInCache(cacheKey);
-		if (result != null) {
-			return result;
+		if (apiCache.isCached(cacheKey)) {
+			return null;
 		}
 		
-		result = new AccountBalance();
+		AccountBalance result = new AccountBalance();
 		CacheInformation cacheInformation = new CacheInformation();
 		
 		// Prepare XML parser
@@ -238,13 +219,12 @@ public class EveApi {
 		// Plausibility check
 		if (result != null) {
 			if (result.accountID == null || result.accountKey == null) {
-				result = null;
+				return null;
 			}
 		}
 		
 		// Cache result
-		cacheInformation.cachedData = result;
-		cachedItems.put(cacheKey, new SoftReference<CacheInformation>(cacheInformation));
+		apiCache.cache(cacheKey, cacheInformation);
 		
 		return result;
 	}

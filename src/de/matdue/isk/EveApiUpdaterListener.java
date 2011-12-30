@@ -19,7 +19,7 @@ public class EveApiUpdaterListener implements AlarmListener {
 	public void scheduleAlarms(AlarmManager alarmManager, PendingIntent pendingIntent, Context context) {
 		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
 				SystemClock.elapsedRealtime() + 60000, 
-				AlarmManager.INTERVAL_HOUR / 60, 
+				AlarmManager.INTERVAL_HOUR / 2, 
 				pendingIntent);
 	}
 

@@ -2,10 +2,6 @@ package de.matdue.isk;
 
 import java.util.ArrayList;
 
-import de.matdue.isk.data.ApiKey;
-import de.matdue.isk.database.IskDatabase;
-import de.matdue.isk.eve.Account;
-import de.matdue.isk.eve.EveApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -19,6 +15,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import de.matdue.isk.data.ApiKey;
+import de.matdue.isk.database.IskDatabase;
+import de.matdue.isk.eve.Account;
+import de.matdue.isk.eve.EveApi;
+import de.matdue.isk.eve.EveApiCacheDummy;
 
 public class ApiKeyActivity extends Activity {
 	
@@ -116,7 +117,7 @@ public class ApiKeyActivity extends Activity {
 			id = params[0];
 			code = params[1];
 			
-			EveApi api = new EveApi();
+			EveApi api = new EveApi(new EveApiCacheDummy());
 			Account account = api.validateKey(id, code);
 			return account;
 		}

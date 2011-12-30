@@ -6,7 +6,6 @@ public class CacheInformation {
 	
 	public Date currentTime;
 	public Date cachedUntil;
-	public Object cachedData;
 	
 	public static String buildHashKey(String url, String... attributes) {
 		StringBuilder result = new StringBuilder();

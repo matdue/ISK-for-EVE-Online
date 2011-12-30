@@ -2,6 +2,7 @@ package de.matdue.isk.database;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import de.matdue.isk.data.ApiKey;
@@ -16,7 +17,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class IskDatabase extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "isk.db";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 6;
 	
 	public IskDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -24,6 +25,7 @@ public class IskDatabase extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		db.execSQL(EveApiCacheTable.SQL_CREATE);
 		db.execSQL(ApiKeyTable.SQL_CREATE);
 		db.execSQL(CharacterTable.SQL_CREATE);
 		db.execSQL(BalanceTable.SQL_CREATE);
@@ -34,6 +36,7 @@ public class IskDatabase extends SQLiteOpenHelper {
 		db.execSQL(BalanceTable.SQL_DROP);
 		db.execSQL(CharacterTable.SQL_DROP);
 		db.execSQL(ApiKeyTable.SQL_DROP);
+		db.execSQL(EveApiCacheTable.SQL_DROP);
 		onCreate(db);
 	}
 	
@@ -299,5 +302,47 @@ public class IskDatabase extends SQLiteOpenHelper {
 		cursor.close();
 		
 		return result;
+	}
+	
+	public boolean isEveApiCacheValid(String key) {
+		boolean result = false;
+		
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor cursor = db.query(EveApiCacheTable.TABLE_NAME, 
+				new String[] { EveApiCacheColumns.CACHED_UNTIL }, 
+				EveApiCacheColumns.KEY + "=?", 
+				new String[] { key }, 
+				null, 
+				null, 
+				null);
+		if (cursor.moveToNext()) {
+			Date cachedUntil = new Date(cursor.getLong(0));
+			result = cachedUntil.after(new Date());
+		}
+		cursor.close();
+		
+		return result;
+	}
+	
+	public void storeEveApiCache(String key, Date cachedUntil) {
+		SQLiteDatabase db = getWritableDatabase();
+		InsertHelper insertHelper = new InsertHelper(db, EveApiCacheTable.TABLE_NAME);
+		try {
+			db.beginTransaction();
+			
+			db.delete(EveApiCacheTable.TABLE_NAME, 
+					EveApiCacheColumns.KEY + "=?", 
+					new String[] { key });
+			
+			ContentValues values = new ContentValues();
+			values.put(EveApiCacheColumns.KEY, key);
+			values.put(EveApiCacheColumns.CACHED_UNTIL, cachedUntil.getTime());
+			insertHelper.insert(values);
+			
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+			insertHelper.close();
+		}
 	}
 }
