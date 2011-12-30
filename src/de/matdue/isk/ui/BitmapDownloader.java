@@ -18,16 +18,16 @@ import android.graphics.BitmapFactory;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
-public class BitmapDownloadManager {
+public class BitmapDownloader {
 
 	private static int POOL_SIZE = 4;
 
 	private ExecutorService pool;
 	private AtomicInteger threadCounter;
 	
-	private CacheManager cacheManager;
+	private FileCache cacheManager;
 
-	public BitmapDownloadManager(CacheManager cacheManager) {
+	public BitmapDownloader(FileCache cacheManager) {
 		threadCounter = new AtomicInteger();
 		this.cacheManager = cacheManager;
 

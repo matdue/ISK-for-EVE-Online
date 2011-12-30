@@ -8,9 +8,11 @@
         android:layout_height="64dip"
         android:maxHeight="64dip"
         android:maxWidth="64dip"
+        android:layout_margin="3dip"
         android:scaleType="centerInside"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:contentDescription="@string/start_character_portrait"
         android:focusable="false" />
 
     <CheckBox 

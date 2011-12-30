@@ -9,14 +9,13 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
-public class CacheManager {
+public class FileCache {
 	
 	private File cacheDir;
-	private static long MAXIMUM_AGE = 30l * 24l * 60l * 60l * 1000l;  // 30 days in milliseconds
+	private static final long MAXIMUM_AGE = 30l * 24l * 60l * 60l * 1000l;  // 30 days in milliseconds
 	
-	public CacheManager(File cacheDir) {
+	public FileCache(File cacheDir) {
 		this.cacheDir = cacheDir;
 	}
 	
@@ -30,7 +29,7 @@ public class CacheManager {
 		}
 		
 		// Check if expired
-		long expires = new Date().getTime() - MAXIMUM_AGE;
+		long expires = System.currentTimeMillis() - MAXIMUM_AGE;
 		if (cachedFile.lastModified() < expires) {
 			cachedFile.delete();
 			return null;
@@ -86,7 +85,7 @@ public class CacheManager {
 			
 			@Override
 			public void run() {
-				long expires = new Date().getTime() - MAXIMUM_AGE;
+				long expires = System.currentTimeMillis() - MAXIMUM_AGE;
 				File[] cachedFiles = cacheDir.listFiles();
 				for (File cachedFile : cachedFiles) {
 					if (cachedFile.isFile() && cachedFile.lastModified() < expires) {

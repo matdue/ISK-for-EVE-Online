@@ -1,6 +1,5 @@
 package de.matdue.isk;
 
-import java.util.HashMap;
 import java.util.List;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -11,7 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -29,19 +27,14 @@ import android.widget.TextView;
 import de.matdue.isk.data.Character;
 import de.matdue.isk.database.ApiKeyColumns;
 import de.matdue.isk.database.IskDatabase;
-import de.matdue.isk.ui.BitmapDownloadManager;
-import de.matdue.isk.ui.BitmapDownloadTask;
-import de.matdue.isk.ui.CacheManager;
+import de.matdue.isk.ui.BitmapManager;
 
 public class PilotsActivity extends ExpandableListActivity {
 	
 	private static final int ApiKeyActivityRequestCode = 0;
 
 	private IskDatabase iskDatabase;
-
-	private BitmapDownloadManager bitmapDownloadManager;
-	private CacheManager cacheManager;
-	private HashMap<String, Bitmap> bitmapMemoryCache;
+	private BitmapManager bitmapManager;
 	
 	// For onPause/onResume: remember which groups are expanded, and which are not
 	private boolean[] expandedGroups;
@@ -50,11 +43,7 @@ public class PilotsActivity extends ExpandableListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		cacheManager = new CacheManager(getCacheDir());
-		cacheManager.cleanup();  // TODO: not that often...
-		bitmapMemoryCache = new HashMap<String, Bitmap>();
-		bitmapDownloadManager = new BitmapDownloadManager(cacheManager);
-
+		bitmapManager = new BitmapManager(this, getCacheDir());
 		iskDatabase = new IskDatabase(this);
 		Cursor apiKeyCursor = iskDatabase.getApiKeyCursor();
 		startManagingCursor(apiKeyCursor);
@@ -86,7 +75,7 @@ public class PilotsActivity extends ExpandableListActivity {
 		super.onDestroy();
 
 		iskDatabase.close();
-		bitmapDownloadManager.shutdown();
+		bitmapManager.shutdown();
 	}
 
 	@Override
@@ -312,15 +301,11 @@ public class PilotsActivity extends ExpandableListActivity {
 
 			ImageView imageView = (ImageView) view.findViewById(R.id.pilot_image);
 			String imageViewUrl = (String) imageView.getTag();
-			String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(cursor.getString(3), 64);
+			String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(cursor.getString(3), 128);
 			if (!imageUrl.equals(imageViewUrl)) {
 				imageView.setTag(imageUrl);
-				Bitmap bitmap = bitmapMemoryCache.get(imageUrl);
-				if (bitmap != null) {
-					imageView.setImageBitmap(bitmap);
-				} else {
-					new BitmapDownloadTask(imageView, cacheManager,	bitmapDownloadManager, bitmapMemoryCache).execute(imageUrl);
-				}
+				bitmapManager.setLoadingBitmap(R.drawable.unknown_character_1_128);
+				bitmapManager.setImageBitmap(imageView, imageUrl);
 			}
 
 			CheckBox checkBox = (CheckBox) view.findViewById(R.id.pilot_checked);

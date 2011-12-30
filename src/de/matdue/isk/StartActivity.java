@@ -4,7 +4,6 @@ import java.text.Collator;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -18,7 +17,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -30,19 +28,13 @@ import android.widget.TextView;
 import de.matdue.isk.data.Balance;
 import de.matdue.isk.data.Character;
 import de.matdue.isk.database.IskDatabase;
-import de.matdue.isk.ui.BitmapDownloadManager;
-import de.matdue.isk.ui.BitmapDownloadTask;
-import de.matdue.isk.ui.CacheManager;
+import de.matdue.isk.ui.BitmapManager;
 
 public class StartActivity extends Activity {
 	
 	private BroadcastReceiver eveApiUpdaterReceiver;
-	
 	private IskDatabase iskDatabase;
-	
-	private BitmapDownloadManager bitmapDownloadManager;
-	private CacheManager cacheManager;
-	private HashMap<String, Bitmap> bitmapMemoryCache;
+	private BitmapManager bitmapManager;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +43,7 @@ public class StartActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.start);
 		
-		cacheManager = new CacheManager(getCacheDir());
-		cacheManager.cleanup();  // TODO: not that often...
-		bitmapMemoryCache = new HashMap<String, Bitmap>();
-		bitmapDownloadManager = new BitmapDownloadManager(cacheManager);
-		
+		bitmapManager = new BitmapManager(this, getCacheDir());
 		iskDatabase = new IskDatabase(this);
 
 		Button pilotsButton = (Button) findViewById(R.id.pilots);
@@ -85,7 +73,7 @@ public class StartActivity extends Activity {
 		super.onDestroy();
 		
 		iskDatabase.close();
-		bitmapDownloadManager.shutdown();
+		bitmapManager.shutdown();
 	}
 	
 	@Override
@@ -147,12 +135,8 @@ public class StartActivity extends Activity {
 				// Character portrait
 				ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
 				String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(characterID, 128);
-				Bitmap bitmap = bitmapMemoryCache.get(imageUrl);
-				if (bitmap != null) {
-					imageView.setImageBitmap(bitmap);
-				} else {
-					new BitmapDownloadTask(imageView, cacheManager,	bitmapDownloadManager, bitmapMemoryCache).execute(imageUrl);
-				}
+				bitmapManager.setLoadingBitmap(R.drawable.unknown_character_1_128);
+				bitmapManager.setImageBitmap(imageView, imageUrl);
 				
 				// Balance
 				if (balance != null) {
