@@ -165,6 +165,7 @@ public class PilotsActivity extends ExpandableListActivity {
 			
 			// Update all characters
 			Intent msgIntent = new Intent(this, EveApiUpdaterService.class);
+			msgIntent.putExtra("force", true);
 			WakefulIntentService.sendWakefulWork(this, msgIntent);
 			
 			// Update current character to new API key if applicable

@@ -38,8 +38,10 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		}
 		
 		try {
+			boolean forcedUpdate = intent.getBooleanExtra("force", false);
+			
 			iskDatabase = new IskDatabase(this);
-			eveApi = new EveApi(new EveApiCacheDatabase());
+			eveApi = new EveApi(new EveApiCacheDatabase(forcedUpdate));
 			
 			// If 'characterId' is given, update that specific character only
 			// else update all characters
@@ -111,10 +113,20 @@ public class EveApiUpdaterService extends WakefulIntentService {
 	}
 	
 	private class EveApiCacheDatabase implements EveApiCache {
+		
+		private boolean forcedUpdate;
+		
+		public EveApiCacheDatabase(boolean forcedUpdate) {
+			this.forcedUpdate = forcedUpdate;
+		}
 
 		@Override
 		public boolean isCached(String key) {
-			return iskDatabase.isEveApiCacheValid(key);
+			if (forcedUpdate) {
+				return false;
+			} else {
+				return iskDatabase.isEveApiCacheValid(key);
+			}
 		}
 
 		@Override
