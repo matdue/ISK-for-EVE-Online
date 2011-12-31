@@ -17,7 +17,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class IskDatabase extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "isk.db";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 7;
 	
 	public IskDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -26,6 +26,7 @@ public class IskDatabase extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(EveApiCacheTable.SQL_CREATE);
+		db.execSQL(EveApiHistoryTable.SQL_CREATE);
 		db.execSQL(ApiKeyTable.SQL_CREATE);
 		db.execSQL(CharacterTable.SQL_CREATE);
 		db.execSQL(BalanceTable.SQL_CREATE);
@@ -36,6 +37,7 @@ public class IskDatabase extends SQLiteOpenHelper {
 		db.execSQL(BalanceTable.SQL_DROP);
 		db.execSQL(CharacterTable.SQL_DROP);
 		db.execSQL(ApiKeyTable.SQL_DROP);
+		db.execSQL(EveApiHistoryTable.SQL_DROP);
 		db.execSQL(EveApiCacheTable.SQL_DROP);
 		onCreate(db);
 	}
@@ -342,6 +344,29 @@ public class IskDatabase extends SQLiteOpenHelper {
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
+			insertHelper.close();
+		}
+	}
+	
+	public void cleanupEveApiHistory() {
+		SQLiteDatabase db = getWritableDatabase();
+		
+		long aWeekAgo = System.currentTimeMillis() - 7l*60l*60l*1000l;
+		db.delete(EveApiHistoryTable.TABLE_NAME, 
+				EveApiHistoryColumns.TIMESTAMP + "<?", 
+				new String[] { Long.toString(aWeekAgo) });
+	}
+	
+	public void storeEveApiHistory(String url, String result) {
+		SQLiteDatabase db = getWritableDatabase();
+		InsertHelper insertHelper = new InsertHelper(db, EveApiHistoryTable.TABLE_NAME);
+		try {
+			ContentValues values = new ContentValues();
+			values.put(EveApiHistoryColumns.URL, url);
+			values.put(EveApiHistoryColumns.RESULT, result);
+			values.put(EveApiHistoryColumns.TIMESTAMP, System.currentTimeMillis());
+			insertHelper.insert(values);
+		} finally {
 			insertHelper.close();
 		}
 	}

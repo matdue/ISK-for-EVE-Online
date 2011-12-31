@@ -1,13 +1,14 @@
 package de.matdue.isk.database;
 
-public class EveApiCacheTable implements EveApiCacheColumns {
-	
-	public static final String TABLE_NAME = "eveApiCache";
+public class EveApiHistoryTable implements EveApiHistoryColumns {
+
+	public static final String TABLE_NAME = "eveApiHistory";
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " (" +
-		KEY + " TEXT," +
-		CACHED_UNTIL + " INTEGER" +
+		URL + " TEXT," +
+		TIMESTAMP + " INTEGER," +
+		RESULT + " TEXT" +
 		")";
 	
 	public static final String SQL_DROP = 
@@ -15,5 +16,5 @@ public class EveApiCacheTable implements EveApiCacheColumns {
 	
 	public static final String STMT_CLEAR = 
 		"DELETE FROM " + TABLE_NAME;
-
+	
 }

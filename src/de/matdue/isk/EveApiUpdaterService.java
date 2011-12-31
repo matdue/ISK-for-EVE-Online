@@ -22,6 +22,7 @@ public class EveApiUpdaterService extends WakefulIntentService {
 	public static final String ACTION_RESP = "de.matdue.isk.EVE_API_UPDATER_FINISHED";
 	
 	private IskDatabase iskDatabase;
+	private EveApi eveApi;
 
 	public EveApiUpdaterService() {
 		super("de.matdue.isk.EveApiUpdaterService");
@@ -38,6 +39,7 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		
 		try {
 			iskDatabase = new IskDatabase(this);
+			eveApi = new EveApi(new EveApiCacheDatabase());
 			
 			// If 'characterId' is given, update that specific character only
 			// else update all characters
@@ -71,6 +73,7 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		for (de.matdue.isk.data.Character character : characters) {
 			updateCharacter(character.getCharacterId());
 		}
+		iskDatabase.cleanupEveApiHistory();
 	}
 	
 	/**
@@ -95,8 +98,6 @@ public class EveApiUpdaterService extends WakefulIntentService {
 	 * @param characterId Character's EVE id
 	 */
 	private void updateBalance(String characterId) {
-		EveApi eveApi = new EveApi(new EveApiCacheDatabase());
-		
 		ApiKey apiKey = iskDatabase.queryApiKey(characterId);
 		if (apiKey != null) {
 			AccountBalance accountBalance = eveApi.queryAccountBalance(apiKey.getKey(), apiKey.getCode(), characterId);
@@ -119,6 +120,11 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		@Override
 		public void cache(String key, CacheInformation cacheInformation) {
 			iskDatabase.storeEveApiCache(key, cacheInformation.cachedUntil);
+		}
+
+		@Override
+		public void urlAccessed(String url, String result) {
+			iskDatabase.storeEveApiHistory(url, result);
 		}
 		
 	}
