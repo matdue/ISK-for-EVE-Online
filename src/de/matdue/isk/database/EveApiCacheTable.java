@@ -6,7 +6,6 @@ public static final String TABLE_NAME = "eveApiCache";
 	
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " (" +
-		ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 		KEY + " TEXT," +
 		CACHED_UNTIL + " INTEGER" +
 		")";
