@@ -316,8 +316,8 @@ public class IskDatabase extends SQLiteOpenHelper {
 				null, 
 				null);
 		if (cursor.moveToNext()) {
-			Date cachedUntil = new Date(cursor.getLong(0));
-			result = cachedUntil.after(new Date());
+			long cachedUntil = cursor.getLong(0);
+			result = cachedUntil > System.currentTimeMillis();
 		}
 		cursor.close();
 		
