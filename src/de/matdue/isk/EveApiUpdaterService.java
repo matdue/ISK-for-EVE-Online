@@ -2,6 +2,7 @@ package de.matdue.isk;
 
 import java.util.List;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -34,6 +35,11 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		
 		// Skip update if no network is available
 		if (!isNetworkAvailable()) {
+			return;
+		}
+		
+		// Skip update if global sync is switched off
+		if (!ContentResolver.getMasterSyncAutomatically()) {
 			return;
 		}
 		
