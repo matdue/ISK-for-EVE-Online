@@ -24,5 +24,7 @@
     <string name="pilots_context_refresh">Refresh characters</string>
     <string name="start_character_portrait">Character portrait</string>
     <string name="start_character_choose">Choose character</string>
+    <string name="start_optmenu_history">History</string>
+    <string name="history_no_data">No data</string>
 
 </resources>

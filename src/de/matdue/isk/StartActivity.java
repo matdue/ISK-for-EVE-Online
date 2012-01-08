@@ -19,6 +19,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -108,6 +110,24 @@ public class StartActivity extends Activity {
 			}
 		};
         registerReceiver(eveApiUpdaterReceiver, filter);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.start_options, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.start_optmenu_history:
+			startActivity(new Intent(this, HistoryActivity.class));
+			return true;
+			
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 	
 	private void updateCharacter(String characterId) {

@@ -329,4 +329,24 @@ public class IskDatabase extends SQLiteOpenHelper {
 			insertHelper.close();
 		}
 	}
+	
+	public Cursor getEveApiHistoryCursor() {
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor cursor = db.query(EveApiHistoryTable.TABLE_NAME,
+				new String[] {
+				"rowid _id",
+				EveApiHistoryColumns.TIMESTAMP,
+				EveApiHistoryColumns.URL,
+				EveApiHistoryColumns.KEY_ID,
+				EveApiHistoryColumns.RESULT
+			},
+			null,  // where
+			null,  // where arguments
+			null,  // group by
+			null,  // having
+			EveApiHistoryColumns.TIMESTAMP + " desc"); // order by
+		
+		return cursor;
+	}
+
 }
