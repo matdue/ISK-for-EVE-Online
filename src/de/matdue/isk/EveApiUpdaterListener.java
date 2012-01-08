@@ -12,14 +12,14 @@ public class EveApiUpdaterListener implements AlarmListener {
 
 	@Override
 	public long getMaxAge() {
-		return AlarmManager.INTERVAL_HOUR;
+		return AlarmManager.INTERVAL_HOUR * 2;
 	}
 
 	@Override
 	public void scheduleAlarms(AlarmManager alarmManager, PendingIntent pendingIntent, Context context) {
 		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
 				SystemClock.elapsedRealtime() + 60000, 
-				AlarmManager.INTERVAL_HOUR / 2, 
+				AlarmManager.INTERVAL_HOUR, 
 				pendingIntent);
 	}
 
