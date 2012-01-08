@@ -141,8 +141,8 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		}
 
 		@Override
-		public void urlAccessed(String url, String result) {
-			iskDatabase.storeEveApiHistory(url, result);
+		public void urlAccessed(String url, String keyID, String result) {
+			iskDatabase.storeEveApiHistory(url, keyID, result);
 		}
 		
 	}

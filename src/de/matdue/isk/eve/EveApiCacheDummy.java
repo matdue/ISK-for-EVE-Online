@@ -16,7 +16,7 @@ public class EveApiCacheDummy implements EveApiCache {
 	}
 
 	@Override
-	public void urlAccessed(String url, String result) {
+	public void urlAccessed(String url, String keyID, String result) {
 	}
 
 }

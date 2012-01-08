@@ -72,7 +72,7 @@ public class EveApi {
 			// Record access
 			int statusCode = response.getStatusLine().getStatusCode();
 			String reasonPhrase = response.getStatusLine().getReasonPhrase();
-			apiCache.urlAccessed(request.getURI().toString(), statusCode + " " + reasonPhrase);
+			apiCache.urlAccessed(request.getURI().toString(), keyID, statusCode + " " + reasonPhrase);
 			
 			if (statusCode != HttpStatus.SC_OK) {
 				Log.e(EveApi.class.toString(), "API returned with code " + statusCode);

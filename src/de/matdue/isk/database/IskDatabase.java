@@ -17,7 +17,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class IskDatabase extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "isk.db";
-	private static final int DATABASE_VERSION = 7;
+	private static final int DATABASE_VERSION = 8;
 	
 	public IskDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -153,48 +153,6 @@ public class IskDatabase extends SQLiteOpenHelper {
 		}
 	}
 
-	/*public String[] queryCharacter(String characterID) {
-		SQLiteDatabase db = getReadableDatabase();
-		Cursor cursor = null;
-		try {
-			// Lookup character
-			cursor = db.query(CharacterTable.TABLE_NAME, 
-					new String[] { CharacterColumns.NAME, CharacterColumns.API_ID },
-					CharacterColumns.CHARACTER_ID + "=?", 
-					new String[] { characterID }, 
-					null,   // groupBy
-					null,   // having
-					null);  // orderBy
-			if (cursor.moveToNext()) {
-				String characterName = cursor.getString(0);
-				String apiID = cursor.getString(1);
-				cursor.close();
-				
-				// Lookup corresponding API login
-				cursor = db.query(ApiKeyTable.TABLE_NAME, 
-						new String[] { ApiKeyColumns.KEY, ApiKeyColumns.CODE }, 
-						ApiKeyColumns.ID + "=?",      // where
-						new String[] { apiID },  // where arguments
-						null,  // group by
-						null,  // having
-						null); // order by
-				if (cursor.moveToNext()) {
-					String keyID = cursor.getString(0);
-					String vCode = cursor.getString(1);
-					
-					return new String[] { characterID, characterName, keyID, vCode };
-				}
-			}
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-			db.close();
-		}
-		
-		return null;
-	}*/
-	
 	public List<de.matdue.isk.data.Character> queryAllCharacters() {
 		List<de.matdue.isk.data.Character> result = new ArrayList<de.matdue.isk.data.Character>();
 		SQLiteDatabase db = getReadableDatabase();
@@ -357,12 +315,13 @@ public class IskDatabase extends SQLiteOpenHelper {
 				new String[] { Long.toString(aWeekAgo) });
 	}
 	
-	public void storeEveApiHistory(String url, String result) {
+	public void storeEveApiHistory(String url, String keyID, String result) {
 		SQLiteDatabase db = getWritableDatabase();
 		InsertHelper insertHelper = new InsertHelper(db, EveApiHistoryTable.TABLE_NAME);
 		try {
 			ContentValues values = new ContentValues();
 			values.put(EveApiHistoryColumns.URL, url);
+			values.put(EveApiHistoryColumns.KEY_ID, keyID);
 			values.put(EveApiHistoryColumns.RESULT, result);
 			values.put(EveApiHistoryColumns.TIMESTAMP, System.currentTimeMillis());
 			insertHelper.insert(values);

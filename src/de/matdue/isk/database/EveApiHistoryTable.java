@@ -7,6 +7,7 @@ public class EveApiHistoryTable implements EveApiHistoryColumns {
 	public static final String SQL_CREATE =
 		"CREATE TABLE " + TABLE_NAME + " (" +
 		URL + " TEXT," +
+		KEY_ID + " TEXT," +
 		TIMESTAMP + " INTEGER," +
 		RESULT + " TEXT" +
 		")";
