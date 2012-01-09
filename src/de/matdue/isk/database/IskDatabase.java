@@ -309,7 +309,7 @@ public class IskDatabase extends SQLiteOpenHelper {
 	public void cleanupEveApiHistory() {
 		SQLiteDatabase db = getWritableDatabase();
 		
-		long aWeekAgo = System.currentTimeMillis() - 7l*60l*60l*1000l;
+		long aWeekAgo = System.currentTimeMillis() - 7l*24l*60l*60l*1000l;
 		db.delete(EveApiHistoryTable.TABLE_NAME, 
 				EveApiHistoryColumns.TIMESTAMP + "<?", 
 				new String[] { Long.toString(aWeekAgo) });
