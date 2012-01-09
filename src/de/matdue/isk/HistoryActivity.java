@@ -7,7 +7,6 @@ import de.matdue.isk.database.IskDatabase;
 import android.app.ListActivity;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListAdapter;
@@ -67,9 +66,8 @@ public class HistoryActivity extends ListActivity {
 			// Date and time
 			viewHolder.datetime.setText(dateFormatter.format(new Date(cursor.getLong(1))));
 			
-			// URL; display path only
-			Uri uri = Uri.parse(cursor.getString(2));
-			viewHolder.url.setText(uri.getPath());
+			// URL
+			viewHolder.url.setText(cursor.getString(2));
 			
 			// Character
 			viewHolder.key_id.setText(cursor.getString(3));
