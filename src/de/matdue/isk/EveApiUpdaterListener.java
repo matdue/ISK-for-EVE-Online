@@ -4,12 +4,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 import com.commonsware.cwac.wakeful.WakefulIntentService.AlarmListener;
 
 public class EveApiUpdaterListener implements AlarmListener {
-
+	
 	@Override
 	public long getMaxAge() {
 		return AlarmManager.INTERVAL_HOUR * 2;
@@ -17,10 +19,20 @@ public class EveApiUpdaterListener implements AlarmListener {
 
 	@Override
 	public void scheduleAlarms(AlarmManager alarmManager, PendingIntent pendingIntent, Context context) {
-		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-				SystemClock.elapsedRealtime() + 60000, 
-				AlarmManager.INTERVAL_HOUR, 
-				pendingIntent);
+		String updateInterval = PreferenceManager.getDefaultSharedPreferences(context).getString("updateInterval", "1");
+		Log.d("EveApiUpdaterListener", "Update interval: " + updateInterval);
+		if (updateInterval != null) {
+			try {
+				int interval = Integer.parseInt(updateInterval);
+				if (interval > 0) {
+					alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
+							SystemClock.elapsedRealtime() + 60000, 
+							interval * AlarmManager.INTERVAL_HOUR, 
+							pendingIntent);
+				}
+			} catch (NumberFormatException e) {
+			}
+		}
 	}
 
 	@Override

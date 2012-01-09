@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="updateInterval">
+		<item>Hourly</item>
+		<item>Every 2 hours</item>
+		<item>Every 4 hours</item>
+		<item>Every 8 hours</item>
+		<item>Twice a day</item>
+		<item>Daily</item>
+		<item>Manual only</item>
+	</string-array>    
+	<string-array name="updateIntervalValues">
+		<item>1</item>
+		<item>2</item>
+		<item>4</item>
+		<item>8</item>
+		<item>12</item>
+		<item>24</item>
+		<item>0</item>
+	</string-array>    
+</resources>

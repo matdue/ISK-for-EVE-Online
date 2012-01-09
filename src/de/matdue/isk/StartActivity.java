@@ -67,7 +67,7 @@ public class StartActivity extends Activity {
 		});
 		
 		// Make sure update service to be called regularly
-		WakefulIntentService.scheduleAlarms(new EveApiUpdaterListener(), this, false);
+		WakefulIntentService.scheduleAlarms(new EveApiUpdaterListener(), getApplicationContext(), false);
 	}
 	
 	@Override
@@ -123,6 +123,10 @@ public class StartActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.start_optmenu_history:
 			startActivity(new Intent(this, HistoryActivity.class));
+			return true;
+			
+		case R.id.start_optmenu_preferences:
+			startActivity(new Intent(this, PreferencesActivity.class));
 			return true;
 			
 		default:

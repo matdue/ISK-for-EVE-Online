@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -39,7 +40,8 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		}
 		
 		// Skip update if global sync is switched off
-		if (!ContentResolver.getMasterSyncAutomatically()) {
+		boolean honorGlobalSync = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("honorGlobalSync", true);
+		if (honorGlobalSync && !ContentResolver.getMasterSyncAutomatically()) {
 			return;
 		}
 		
