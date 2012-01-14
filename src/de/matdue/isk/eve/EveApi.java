@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.TimeZone;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -48,6 +50,10 @@ public class EveApi {
 	}
 	
 	private boolean queryApi(ContentHandler xmlParser, String url, String keyID, String vCode, String characterID) {
+		return queryApi(xmlParser, url, keyID, vCode, characterID, null, null);
+	}
+	
+	private boolean queryApi(ContentHandler xmlParser, String url, String keyID, String vCode, String characterID, String rowCount, String fromID) {
 		AndroidHttpClient httpClient = null;
 		HttpEntity entity = null;
 		InputStream inputStream = null;
@@ -63,6 +69,12 @@ public class EveApi {
 			nameValuePairs.add(new BasicNameValuePair("vCode", vCode));
 			if (characterID != null) {
 				nameValuePairs.add(new BasicNameValuePair("characterID", characterID));
+			}
+			if (rowCount != null) {
+				nameValuePairs.add(new BasicNameValuePair("rowCount", rowCount));
+			}
+			if (fromID != null) {
+				nameValuePairs.add(new BasicNameValuePair("fromID", fromID));
 			}
 			request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			
@@ -247,6 +259,162 @@ public class EveApi {
 					result.balance = new BigDecimal(attributes.getValue("balance"));
 				} catch (NumberFormatException e) {
 					// Ignore error, leave balance as 0.0
+				}
+			}
+		});
+		
+		return root;
+	}
+	
+	public List<WalletJournal> queryWallet(String keyID, String vCode, String characterID) {
+		final String journalURL = "/char/WalletJournal.xml.aspx";
+		final String transactionsURL = "/char/WalletTransactions.xml.aspx";
+		
+		// Lookup in cache
+		String cacheKey = CacheInformation.buildHashKey(journalURL, keyID, vCode, characterID);
+		if (apiCache.isCached(cacheKey)) {
+			return null;
+		}
+		
+		CacheInformation cacheInformation = new CacheInformation();
+		
+		
+		// Wallet journal
+		ArrayList<WalletJournal> walletJournal = new ArrayList<WalletJournal>();
+		
+		// Prepare XML parser
+		ArrayList<WalletJournal> walletJournalBatch = new ArrayList<WalletJournal>();
+		RootElement root = prepareWalletJournalXmlParser(walletJournalBatch, cacheInformation);
+		
+		// Query in batches of 2560 entries
+		if (!queryApi(root.getContentHandler(), journalURL, keyID, vCode, characterID, "2560", null)) {
+			return null;
+		}
+		Log.d("EveApi", "Journals loaded: " + walletJournalBatch.size());
+		while (walletJournalBatch.size() == 2560) {
+			// Find lowest refID
+			long lowestRefID = Long.MAX_VALUE;
+			for (WalletJournal journalEntry : walletJournalBatch) {
+				lowestRefID = Math.min(lowestRefID, journalEntry.refID);
+			}
+			
+			// Query next batch
+			if (!queryApi(root.getContentHandler(), journalURL, keyID, vCode, characterID, "2560", Long.toString(lowestRefID))) {
+				return null;
+			}
+			Log.d("EveApi", "Journals loaded: " + walletJournalBatch.size());
+			
+			// Finish batch
+			walletJournal.addAll(walletJournalBatch);
+			walletJournalBatch.clear();
+		}
+		walletJournal.addAll(walletJournalBatch);
+		walletJournalBatch.clear();
+		
+		
+		// Wallet transactions
+		HashMap<Long, WalletTransaction> walletTransactions = new HashMap<Long, WalletTransaction>();
+
+		// Prepare XML parser
+		HashMap<Long, WalletTransaction> walletTransactionsBatch = new HashMap<Long, WalletTransaction>();
+		root = prepareWalletTransactionXmlParser(walletTransactionsBatch, cacheInformation);
+		
+		// Query in batches of 2560 entries
+		if (!queryApi(root.getContentHandler(), transactionsURL, keyID, vCode, characterID, "2560", null)) {
+			return null;
+		}
+		Log.d("EveApi", "Transactions loaded: " + walletTransactionsBatch.size());
+		while (walletTransactionsBatch.size() == 2560) {
+			// Find lowest transactionID
+			long lowestTransactionID = Long.MAX_VALUE;
+			for (Long transactionID : walletTransactionsBatch.keySet()) {
+				lowestTransactionID = Math.min(lowestTransactionID, transactionID);
+			}
+			
+			// Query next batch
+			if (!queryApi(root.getContentHandler(), transactionsURL, keyID, vCode, characterID, "2560", Long.toString(lowestTransactionID))) {
+				return null;
+			}
+			Log.d("EveApi", "Transactions loaded: " + walletTransactionsBatch.size());
+			
+			// Finish batch
+			walletTransactions.putAll(walletTransactionsBatch);
+			walletTransactionsBatch.clear();
+		}
+		walletTransactions.putAll(walletTransactionsBatch);
+		walletTransactionsBatch.clear();
+		
+		
+		// Link transactions to journal
+		for (WalletJournal journalEntry : walletJournal) {
+			if (journalEntry.refTypeID == 2) {
+				try {
+					// Market transaction
+					long transactionID = Long.parseLong(journalEntry.argName1);
+					WalletTransaction transaction = walletTransactions.get(transactionID);
+					journalEntry.transaction = transaction;
+				} catch (Exception e) {
+					// Ignore error, do not link this record
+				}
+			}
+		}
+		
+		return walletJournal;
+	}
+	
+	private RootElement prepareWalletJournalXmlParser(final ArrayList<WalletJournal> result, final CacheInformation cacheInformation) {
+		RootElement root = new RootElement("eveapi");
+		prepareCacheInformationXmlParser(root, cacheInformation);
+		
+		root.getChild("result").getChild("rowset").getChild("row").setStartElementListener(new StartElementListener() {
+			@Override
+			public void start(Attributes attributes) {
+				try {
+					WalletJournal journalEntry = new WalletJournal();
+					journalEntry.date = dateFormatter.parse(attributes.getValue("date"));
+					journalEntry.refID = Long.parseLong(attributes.getValue("refID"));
+					journalEntry.refTypeID = Integer.parseInt(attributes.getValue("refTypeID"));
+					journalEntry.ownerName1 = attributes.getValue("ownerName1");
+					journalEntry.ownerName2 = attributes.getValue("ownerName2");
+					journalEntry.argName1 = attributes.getValue("argName1");
+					journalEntry.amount = new BigDecimal(attributes.getValue("amount"));
+					String taxAmount = attributes.getValue("taxAmount");
+					journalEntry.taxAmount = "".equals(taxAmount) ? BigDecimal.ZERO : new BigDecimal(attributes.getValue("taxAmount"));
+					
+					result.add(journalEntry);
+				} catch (Exception e) {
+					Log.e("EveApi", "Journal parsing error", e);
+					// Ignore error, do not add this record
+				}
+			}
+		});
+		
+		return root;
+	}
+	
+	private RootElement prepareWalletTransactionXmlParser(final HashMap<Long, WalletTransaction> result, final CacheInformation cacheInformation) {
+		RootElement root = new RootElement("eveapi");
+		// Do not catch cache information, this has been done in wallet journal already
+		
+		root.getChild("result").getChild("rowset").getChild("row").setStartElementListener(new StartElementListener() {
+			@Override
+			public void start(Attributes attributes) {
+				try {
+					WalletTransaction transaction = new WalletTransaction();
+					Long transactionID = Long.valueOf(attributes.getValue("transactionID"));
+					transaction.transactionID = transactionID;
+					transaction.quantity = Integer.parseInt(attributes.getValue("quantity"));
+					transaction.typeName = attributes.getValue("typeName");
+					transaction.price = new BigDecimal(attributes.getValue("price"));
+					transaction.clientName = attributes.getValue("clientName");
+					transaction.stationName = attributes.getValue("stationName");
+					transaction.transactionType = attributes.getValue("transactionType");
+					transaction.transactionFor = attributes.getValue("transactionFor");
+					
+					result.put(transactionID, transaction);
+				} catch (Exception e) {
+					Log.e("EveApi", "Transaction parsing error", e);
+					// Ignore error, do not add this record
 				}
 			}
 		});
