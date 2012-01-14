@@ -19,6 +19,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +38,21 @@ public class StartActivity extends Activity {
 	private BroadcastReceiver eveApiUpdaterReceiver;
 	private IskDatabase iskDatabase;
 	private BitmapManager bitmapManager;
+	
+	// Message to hide progress bar
+	private static final int HIDE_PROGRESS_BAR_INDETERMINATE = 0;
+	
+	// Handler for
+	// - stop progress bar by message
+	private Handler handler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case HIDE_PROGRESS_BAR_INDETERMINATE:
+				setProgressBarIndeterminateVisibility(false);
+				break;
+			}
+		};
+	};
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +99,8 @@ public class StartActivity extends Activity {
 		super.onPause();
 		
 		unregisterReceiver(eveApiUpdaterReceiver);
+		setProgressBarIndeterminateVisibility(false);
+		handler.removeMessages(HIDE_PROGRESS_BAR_INDETERMINATE);
 	}
 	
 	@Override
@@ -107,6 +125,10 @@ public class StartActivity extends Activity {
 				if (currentCharacterID != null && currentCharacterID.equals(characterId)) {
 					updateCharacter(characterId);
 				}
+				
+				// Stop progress bar
+				setProgressBarIndeterminateVisibility(false);
+				handler.removeMessages(HIDE_PROGRESS_BAR_INDETERMINATE);
 			}
 		};
         registerReceiver(eveApiUpdaterReceiver, filter);
@@ -125,6 +147,10 @@ public class StartActivity extends Activity {
 			startActivity(new Intent(this, HistoryActivity.class));
 			return true;
 			
+		case R.id.start_optmenu_refresh:
+			refreshCurrentCharacter();
+			return true;
+			
 		case R.id.start_optmenu_preferences:
 			startActivity(new Intent(this, PreferencesActivity.class));
 			return true;
@@ -132,6 +158,31 @@ public class StartActivity extends Activity {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	/**
+	 * Refreshes current character
+	 */
+	private void refreshCurrentCharacter() {
+		SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+		String currentCharacterID = preferences.getString("startCharacterID", null);
+		if (currentCharacterID == null) {
+			return;
+		}
+		
+		// Force refresh of current character
+		Intent msgIntent = new Intent(this, EveApiUpdaterService.class);
+		msgIntent.putExtra("characterId", currentCharacterID);
+		msgIntent.putExtra("force", true);
+		WakefulIntentService.sendWakefulWork(this, msgIntent);
+		
+		// Show indeterminate progress bar
+		// and cancel it automatically after two minutes
+		// This makes sure progress bar terminates
+		// if callback never calls us.
+		setProgressBarIndeterminateVisibility(true);
+		handler.removeMessages(HIDE_PROGRESS_BAR_INDETERMINATE);
+		handler.sendEmptyMessageDelayed(HIDE_PROGRESS_BAR_INDETERMINATE, 2*60*1000);
 	}
 	
 	private void updateCharacter(String characterId) {

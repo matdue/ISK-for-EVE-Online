@@ -31,5 +31,6 @@
     <string name="preferences_honor_gs">Honor global sync</string>
     <string name="preferences_honor_gs_summary">Update data with activated global sync only</string>
     <string name="start_optmenu_preferences">Preferences</string>
+    <string name="start_optmenu_refresh">Refresh</string>
 
 </resources>
