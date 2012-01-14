@@ -53,10 +53,10 @@ public class PreferencesActivity extends PreferenceActivity implements OnSharedP
 		String updateInterval = preferences.getString("updateInterval", null);
 		if (updateInterval != null) {
 			// Update summary
-			String[] updateIntervalValues = getResources().getStringArray(R.array.updateIntervalValues);
+			String[] updateIntervalValues = getResources().getStringArray(R.array.update_interval_values);
 			int idxUpdateInterval = Arrays.asList(updateIntervalValues).indexOf(updateInterval);
 			if (idxUpdateInterval != -1) {
-				String txtUpdateInterval = getResources().getStringArray(R.array.updateInterval)[idxUpdateInterval];
+				String txtUpdateInterval = getResources().getStringArray(R.array.update_interval)[idxUpdateInterval];
 				findPreference("updateInterval").setSummary(txtUpdateInterval);
 			}
 			

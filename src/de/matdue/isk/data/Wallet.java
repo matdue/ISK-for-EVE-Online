@@ -1,11 +1,18 @@
-package de.matdue.isk.eve;
+package de.matdue.isk.data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
-public class WalletTransaction {
+public class Wallet {
 	
 	// No getters and setters to achive better performance
-	public long transactionID;
+	public Date date;
+	public int refTypeID;
+	public String ownerName1;
+	public String ownerName2;
+	public BigDecimal amount;
+	public BigDecimal taxAmount;
+	
 	public int quantity;
 	public String typeName;
 	public BigDecimal price;
@@ -13,6 +20,5 @@ public class WalletTransaction {
 	public String stationName;
 	public String transactionType;
 	public String transactionFor;
-	public long journalTransactionID;
 
 }

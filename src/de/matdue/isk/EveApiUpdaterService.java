@@ -1,5 +1,6 @@
 package de.matdue.isk;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentResolver;
@@ -13,11 +14,13 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import de.matdue.isk.data.ApiKey;
 import de.matdue.isk.data.Balance;
+import de.matdue.isk.data.Wallet;
 import de.matdue.isk.database.IskDatabase;
 import de.matdue.isk.eve.AccountBalance;
 import de.matdue.isk.eve.CacheInformation;
 import de.matdue.isk.eve.EveApi;
 import de.matdue.isk.eve.EveApiCache;
+import de.matdue.isk.eve.WalletJournal;
 
 public class EveApiUpdaterService extends WakefulIntentService {
 	
@@ -93,6 +96,7 @@ public class EveApiUpdaterService extends WakefulIntentService {
 	 */
 	private void updateCharacter(String characterId) {
 		updateBalance(characterId);
+		updateWallet(characterId);
 		
 		// Inform listeners about updated character
 		Intent broadcastIntent = new Intent();
@@ -116,6 +120,39 @@ public class EveApiUpdaterService extends WakefulIntentService {
 				balance.setBalance(accountBalance.balance);
 				balance.setCharacterId(characterId);
 				iskDatabase.storeBalance(balance);
+			}
+		}
+	}
+	
+	private void updateWallet(String characterId) {
+		ApiKey apiKey = iskDatabase.queryApiKey(characterId);
+		if (apiKey != null) {
+			List<WalletJournal> wallet = eveApi.queryWallet(apiKey.getKey(), apiKey.getCode(), characterId);
+			if (wallet != null) {
+				// Prepare data objects
+				ArrayList<Wallet> walletDatas = new ArrayList<Wallet>();
+				for (WalletJournal walletJournalEntry : wallet) {
+					Wallet walletData = new Wallet();
+					walletData.date = walletJournalEntry.date;
+					walletData.refTypeID = walletJournalEntry.refTypeID;
+					walletData.ownerName1 = walletJournalEntry.ownerName1;
+					walletData.ownerName2 = walletJournalEntry.ownerName2;
+					walletData.amount = walletJournalEntry.amount;
+					walletData.taxAmount = walletJournalEntry.taxAmount;
+					
+					if (walletJournalEntry.transaction != null) {
+						walletData.quantity = walletJournalEntry.transaction.quantity;
+						walletData.typeName = walletJournalEntry.transaction.typeName;
+						walletData.price = walletJournalEntry.transaction.price;
+						walletData.clientName = walletJournalEntry.transaction.clientName;
+						walletData.stationName = walletJournalEntry.transaction.stationName;
+						walletData.transactionType = walletJournalEntry.transaction.transactionType;
+						walletData.transactionFor = walletJournalEntry.transaction.transactionFor;
+					}
+					
+					walletDatas.add(walletData);
+				}
+				iskDatabase.storeEveWallet(characterId, walletDatas);
 			}
 		}
 	}

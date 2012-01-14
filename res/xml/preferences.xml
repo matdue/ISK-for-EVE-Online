@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="@string/preferences_cat_updating_data">
-        <ListPreference android:title="@string/preferences_update_interval" android:entryValues="@array/updateIntervalValues" android:entries="@array/updateInterval" android:defaultValue="1" android:key="updateInterval"/>
+        <ListPreference android:title="@string/preferences_update_interval" android:entryValues="@array/update_interval_values" android:entries="@array/update_interval" android:defaultValue="1" android:key="updateInterval"/>
         <CheckBoxPreference android:summary="@string/preferences_honor_gs_summary" android:title="@string/preferences_honor_gs" android:key="honorGlobalSync" android:defaultValue="true"/>
     </PreferenceCategory>
 

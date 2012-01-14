@@ -72,6 +72,20 @@ public class StartActivity extends Activity {
 			}
 		});
 		
+		Button walletButton = (Button) findViewById(R.id.wallet);
+		walletButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+				String characterID = preferences.getString("startCharacterID", null);
+				if (characterID != null) {
+					Intent intent = new Intent(StartActivity.this, WalletActivity.class);
+					intent.putExtra("characterID", characterID);
+					startActivity(intent);
+				}
+			}
+		});
+		
 		View balanceLayout = findViewById(R.id.start_balance_layout);
 		balanceLayout.setOnClickListener(new OnClickListener() {
 			@Override

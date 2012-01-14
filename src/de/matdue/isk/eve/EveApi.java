@@ -313,21 +313,25 @@ public class EveApi {
 		
 		
 		// Wallet transactions
-		HashMap<Long, WalletTransaction> walletTransactions = new HashMap<Long, WalletTransaction>();
+		// With transaction ID as key
+		HashMap<Long, WalletTransaction> walletTransactionsById = new HashMap<Long, WalletTransaction>();
+		// With journal ID as key
+		HashMap<Long, WalletTransaction> walletTransactionsByJournalId = new HashMap<Long, WalletTransaction>();
 
 		// Prepare XML parser
-		HashMap<Long, WalletTransaction> walletTransactionsBatch = new HashMap<Long, WalletTransaction>();
-		root = prepareWalletTransactionXmlParser(walletTransactionsBatch, cacheInformation);
+		HashMap<Long, WalletTransaction> walletTransactionsByIdBatch = new HashMap<Long, WalletTransaction>();
+		HashMap<Long, WalletTransaction> walletTransactionsByJournalIdBatch = new HashMap<Long, WalletTransaction>();
+		root = prepareWalletTransactionXmlParser(walletTransactionsByIdBatch, walletTransactionsByJournalIdBatch, cacheInformation);
 		
 		// Query in batches of 2560 entries
 		if (!queryApi(root.getContentHandler(), transactionsURL, keyID, vCode, characterID, "2560", null)) {
 			return null;
 		}
-		Log.d("EveApi", "Transactions loaded: " + walletTransactionsBatch.size());
-		while (walletTransactionsBatch.size() == 2560) {
+		Log.d("EveApi", "Transactions loaded: " + walletTransactionsByIdBatch.size());
+		while (walletTransactionsByIdBatch.size() == 2560) {
 			// Find lowest transactionID
 			long lowestTransactionID = Long.MAX_VALUE;
-			for (Long transactionID : walletTransactionsBatch.keySet()) {
+			for (Long transactionID : walletTransactionsByIdBatch.keySet()) {
 				lowestTransactionID = Math.min(lowestTransactionID, transactionID);
 			}
 			
@@ -335,14 +339,18 @@ public class EveApi {
 			if (!queryApi(root.getContentHandler(), transactionsURL, keyID, vCode, characterID, "2560", Long.toString(lowestTransactionID))) {
 				return null;
 			}
-			Log.d("EveApi", "Transactions loaded: " + walletTransactionsBatch.size());
+			Log.d("EveApi", "Transactions loaded: " + walletTransactionsByIdBatch.size());
 			
 			// Finish batch
-			walletTransactions.putAll(walletTransactionsBatch);
-			walletTransactionsBatch.clear();
+			walletTransactionsById.putAll(walletTransactionsByIdBatch);
+			walletTransactionsByIdBatch.clear();
+			walletTransactionsByJournalId.putAll(walletTransactionsByJournalIdBatch);
+			walletTransactionsByJournalIdBatch.clear();
 		}
-		walletTransactions.putAll(walletTransactionsBatch);
-		walletTransactionsBatch.clear();
+		walletTransactionsById.putAll(walletTransactionsByIdBatch);
+		walletTransactionsByIdBatch.clear();
+		walletTransactionsByJournalId.putAll(walletTransactionsByJournalIdBatch);
+		walletTransactionsByJournalIdBatch.clear();
 		
 		
 		// Link transactions to journal
@@ -351,11 +359,14 @@ public class EveApi {
 				try {
 					// Market transaction
 					long transactionID = Long.parseLong(journalEntry.argName1);
-					WalletTransaction transaction = walletTransactions.get(transactionID);
+					WalletTransaction transaction = walletTransactionsById.get(transactionID);
 					journalEntry.transaction = transaction;
 				} catch (Exception e) {
 					// Ignore error, do not link this record
 				}
+			} else if (journalEntry.refTypeID == 42) {
+				// Market escrow
+				journalEntry.transaction = walletTransactionsByJournalId.get(journalEntry.refID);
 			}
 		}
 		
@@ -392,7 +403,9 @@ public class EveApi {
 		return root;
 	}
 	
-	private RootElement prepareWalletTransactionXmlParser(final HashMap<Long, WalletTransaction> result, final CacheInformation cacheInformation) {
+	private RootElement prepareWalletTransactionXmlParser(final HashMap<Long, WalletTransaction> resultById,
+			final HashMap<Long, WalletTransaction> resultByJournalId,
+			final CacheInformation cacheInformation) {
 		RootElement root = new RootElement("eveapi");
 		// Do not catch cache information, this has been done in wallet journal already
 		
@@ -410,8 +423,11 @@ public class EveApi {
 					transaction.stationName = attributes.getValue("stationName");
 					transaction.transactionType = attributes.getValue("transactionType");
 					transaction.transactionFor = attributes.getValue("transactionFor");
+					Long journalTransactionID = Long.valueOf(attributes.getValue("journalTransactionID"));
+					transaction.journalTransactionID = journalTransactionID;
 					
-					result.put(transactionID, transaction);
+					resultById.put(transactionID, transaction);
+					resultByJournalId.put(journalTransactionID, transaction);
 				} catch (Exception e) {
 					Log.e("EveApi", "Transaction parsing error", e);
 					// Ignore error, do not add this record

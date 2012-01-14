@@ -53,12 +53,18 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
-
-    <Button
+    <Button
         android:id="@+id/pilots"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableTop="@drawable/ic_launcher"
         android:text="@string/start_pilots" />
+
+    <Button
+        android:id="@+id/wallet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_launcher"
+        android:text="@string/start_wallet" />
 
 </LinearLayout>

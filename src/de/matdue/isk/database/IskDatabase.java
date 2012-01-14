@@ -7,6 +7,7 @@ import java.util.List;
 
 import de.matdue.isk.data.ApiKey;
 import de.matdue.isk.data.Balance;
+import de.matdue.isk.data.Wallet;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -17,7 +18,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class IskDatabase extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "isk.db";
-	private static final int DATABASE_VERSION = 8;
+	private static final int DATABASE_VERSION = 9;
 	
 	public IskDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,10 +31,14 @@ public class IskDatabase extends SQLiteOpenHelper {
 		db.execSQL(ApiKeyTable.SQL_CREATE);
 		db.execSQL(CharacterTable.SQL_CREATE);
 		db.execSQL(BalanceTable.SQL_CREATE);
+		db.execSQL(WalletTable.SQL_CREATE);
+		db.execSQL(WalletTable.IDX_CREATE);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		db.execSQL(WalletTable.IDX_DROP);
+		db.execSQL(WalletTable.SQL_DROP);
 		db.execSQL(BalanceTable.SQL_DROP);
 		db.execSQL(CharacterTable.SQL_DROP);
 		db.execSQL(ApiKeyTable.SQL_DROP);
@@ -345,6 +350,66 @@ public class IskDatabase extends SQLiteOpenHelper {
 			null,  // group by
 			null,  // having
 			EveApiHistoryColumns.TIMESTAMP + " desc"); // order by
+		
+		return cursor;
+	}
+	
+	public void storeEveWallet(String characterId, List<Wallet> wallets) {
+		SQLiteDatabase db = getWritableDatabase();
+		db.delete(WalletTable.TABLE_NAME, 
+				WalletColumns.CHARACTER_ID + "=?", 
+				new String[] { characterId });
+		
+		InsertHelper insertHelper = new InsertHelper(db, WalletTable.TABLE_NAME);
+		try {
+			for (Wallet wallet : wallets) {
+				ContentValues values = new ContentValues();
+				values.put(WalletColumns.CHARACTER_ID, characterId);
+				values.put(WalletColumns.DATE, wallet.date.getTime());
+				values.put(WalletColumns.REFTYPEID, wallet.refTypeID);
+				values.put(WalletColumns.OWNERNAME1, wallet.ownerName1);
+				values.put(WalletColumns.OWNERNAME2, wallet.ownerName2);
+				values.put(WalletColumns.AMOUNT, wallet.amount.toString());
+				values.put(WalletColumns.TAX_AMOUNT, wallet.taxAmount.toString());
+				values.put(WalletColumns.QUANTITY, wallet.quantity);
+				values.put(WalletColumns.TYPE_NAME, wallet.typeName);
+				values.put(WalletColumns.PRICE, wallet.price != null ? wallet.price.toString() : null);
+				values.put(WalletColumns.CLIENT_NAME, wallet.clientName);
+				values.put(WalletColumns.STATION_NAME, wallet.stationName);
+				values.put(WalletColumns.TRANSACTION_TYPE, wallet.transactionType);
+				values.put(WalletColumns.TRANSACTION_FOR, wallet.transactionFor);
+				insertHelper.insert(values);
+			}
+		} finally {
+			insertHelper.close();
+		}
+	}
+	
+	public Cursor getEveWallet(String characterId) {
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor cursor = db.query(WalletTable.TABLE_NAME,
+				new String[] {
+				"rowid _id",
+				WalletColumns.DATE,
+				WalletColumns.REFTYPEID,
+				WalletColumns.OWNERNAME1,
+				WalletColumns.OWNERNAME2,
+				WalletColumns.OWNERNAME2,
+				WalletColumns.AMOUNT,
+				WalletColumns.TAX_AMOUNT,
+				WalletColumns.QUANTITY,
+				WalletColumns.TYPE_NAME,
+				WalletColumns.PRICE,
+				WalletColumns.CLIENT_NAME,
+				WalletColumns.STATION_NAME,
+				WalletColumns.TRANSACTION_TYPE,
+				WalletColumns.TRANSACTION_FOR
+			},
+			WalletColumns.CHARACTER_ID + "=?",  // where
+			new String[] { characterId },  // where arguments
+			null,  // group by
+			null,  // having
+			WalletColumns.DATE + " desc"); // order by
 		
 		return cursor;
 	}
