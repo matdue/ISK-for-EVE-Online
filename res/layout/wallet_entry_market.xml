@@ -15,7 +15,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/wallet_entry_market_action" />
+        android:layout_toRightOf="@+id/wallet_entry_market_action"
+        android:lines="1"
+        android:scrollHorizontally="true"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/wallet_entry_market_station"
@@ -32,7 +35,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/wallet_entry_market_station" />
+        android:layout_below="@+id/wallet_entry_market_station"
+        android:lines="1"
+        android:scrollHorizontally="true"
+        android:ellipsize="end" />
 
     <TextView
         android:id="@+id/wallet_entry_market_quantity"
