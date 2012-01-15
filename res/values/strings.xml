@@ -38,7 +38,7 @@
     <string name="wallet_personal_sell">Sell to\u00A0</string>
     <string name="wallet_corp_buy">Corporation buy from\u00A0</string>
     <string name="wallet_corp_sell">Corporation sell to\u00A0</string>
-    <string name="wallet_taxes">Taxes</string>
-    <string name="wallet_quantity_symbol">\u00A0x\u00A0</string>
+    <string name="wallet_taxes">Tax</string>
+    <string name="wallet_quantity_symbol">\u00A0\u00D7\u00A0</string>
     
 </resources>
