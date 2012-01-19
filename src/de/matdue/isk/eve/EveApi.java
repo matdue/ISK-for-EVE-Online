@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
 import org.apache.http.HttpEntity;
@@ -353,6 +354,9 @@ public class EveApi {
 		walletTransactionsByJournalIdBatch.clear();
 		
 		
+		// Save all transactions; we need it later
+		HashSet<WalletTransaction> allTransactions = new HashSet<WalletTransaction>(walletTransactionsById.values());
+		
 		// Link transactions to journal
 		for (WalletJournal journalEntry : walletJournal) {
 			if (journalEntry.refTypeID == 2) {
@@ -361,13 +365,35 @@ public class EveApi {
 					long transactionID = Long.parseLong(journalEntry.argName1);
 					WalletTransaction transaction = walletTransactionsById.get(transactionID);
 					journalEntry.transaction = transaction;
+					allTransactions.remove(transaction);
 				} catch (Exception e) {
 					// Ignore error, do not link this record
 				}
 			} else if (journalEntry.refTypeID == 42) {
 				// Market escrow
-				journalEntry.transaction = walletTransactionsByJournalId.get(journalEntry.refID);
+				WalletTransaction transaction = walletTransactionsByJournalId.get(journalEntry.refID);
+				journalEntry.transaction = transaction;
+				allTransactions.remove(transaction);
 			}
+		}
+		
+		// Create fake entries for transactions without a corresponding journal entry
+		// (e.g. transactions payed by market escrow)
+		for (WalletTransaction transaction : allTransactions) {
+			WalletJournal fakeJournal = new WalletJournal();
+			fakeJournal.date = transaction.date;
+			fakeJournal.refID = 0;
+			fakeJournal.refTypeID = -42;  // 42 = Market escrow; -42 = same, but already payed
+			fakeJournal.ownerName1 = "";
+			fakeJournal.ownerName2 = "";
+			fakeJournal.argName1 = "";
+			fakeJournal.amount = transaction.price.multiply(new BigDecimal(transaction.quantity));
+			if ("buy".equals(transaction.transactionType)) {
+				fakeJournal.amount = fakeJournal.amount.negate();
+			}
+			fakeJournal.taxAmount = BigDecimal.ZERO;
+			fakeJournal.transaction = transaction;
+			walletJournal.add(fakeJournal);
 		}
 		
 		return walletJournal;
@@ -414,6 +440,7 @@ public class EveApi {
 			public void start(Attributes attributes) {
 				try {
 					WalletTransaction transaction = new WalletTransaction();
+					transaction.date = dateFormatter.parse(attributes.getValue("transactionDateTime"));
 					Long transactionID = Long.valueOf(attributes.getValue("transactionID"));
 					transaction.transactionID = transactionID;
 					transaction.quantity = Integer.parseInt(attributes.getValue("quantity"));

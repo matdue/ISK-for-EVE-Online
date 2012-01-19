@@ -101,7 +101,7 @@ public class WalletActivity extends ListActivity {
 			switch (cursor.getInt(2)) {
 			case 2:
 				// Market transaction
-				formatMarketTransaction(viewHolder, context, cursor);
+				formatMarketTransaction(viewHolder, context, cursor, true);
 				break;
 				
 			case 42:
@@ -113,8 +113,13 @@ public class WalletActivity extends ListActivity {
 					// Initial market escrow
 					formatDefault(viewHolder, context, cursor);
 				} else {
-					formatMarketTransaction(viewHolder, context, cursor);
+					formatMarketTransaction(viewHolder, context, cursor, true);
 				}
+				break;
+				
+			case -42:
+				// Transaction, already payed by market escrow
+				formatMarketTransaction(viewHolder, context, cursor, false);
 				break;
 				
 			default:
@@ -123,7 +128,7 @@ public class WalletActivity extends ListActivity {
 			}
 		}
 		
-		private void formatMarketTransaction(ViewHolder viewHolder, Context context, Cursor cursor) {
+		private void formatMarketTransaction(ViewHolder viewHolder, Context context, Cursor cursor, boolean hasWalletEntry) {
 			viewHolder.marketInclude.setVisibility(View.VISIBLE);
 			
 			String transactionType = cursor.getString(13);
@@ -155,6 +160,9 @@ public class WalletActivity extends ListActivity {
 			
 			BigDecimal totalPrice = new BigDecimal(cursor.getString(6));
 			String sTotalPrice = numberFormatter.format(totalPrice) + " ISK";
+			if (!hasWalletEntry) {
+				sTotalPrice = "(" + sTotalPrice + ")";
+			}
 			viewHolder.marketTotalPrice.setText(sTotalPrice);
 			viewHolder.marketTotalPrice.setTextColor(totalPrice.compareTo(BigDecimal.ZERO) < 0 ? negativeNumber : positiveNumber);
 		}

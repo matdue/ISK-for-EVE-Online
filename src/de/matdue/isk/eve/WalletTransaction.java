@@ -1,10 +1,12 @@
 package de.matdue.isk.eve;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class WalletTransaction {
 	
 	// No getters and setters to achive better performance
+	public Date date;
 	public long transactionID;
 	public int quantity;
 	public String typeName;
