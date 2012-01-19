@@ -53,18 +53,92 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
     </RelativeLayout>
-    <Button
-        android:id="@+id/pilots"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableTop="@drawable/ic_launcher"
-        android:text="@string/start_pilots" />
 
-    <Button
-        android:id="@+id/wallet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableTop="@drawable/ic_launcher"
-        android:text="@string/start_wallet" />
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent" >
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+
+            <FrameLayout 
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5" >
+                			    <Button
+			        android:id="@+id/wallet"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center"
+			        android:background="#80000000"
+			        android:drawablePadding="8sp"
+			        android:drawableTop="@drawable/ic_launcher"
+			        android:text="@string/start_wallet"
+			        android:textAppearance="?android:attr/textAppearanceMedium"
+			        android:textColor="#ffffff" />
+		
+            </FrameLayout>
+            
+            <FrameLayout 
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5" >
+			    			    <Button
+			        android:id="@+id/pilots"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center"
+			        android:background="#80000000"
+			        android:drawablePadding="8sp"
+			        android:drawableTop="@drawable/ic_launcher"
+			        android:text="@string/start_pilots"
+			        android:textAppearance="?android:attr/textAppearanceMedium"
+			        android:textColor="#ffffff" />
+                
+            </FrameLayout>
+		
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" >
+            
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5" >
+			    
+                <Button 
+                    android:visibility="invisible"
+                    android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center"
+			        android:drawableTop="@drawable/ic_launcher"
+			        android:background="#80000000"
+			        android:textColor="#ffffff" />
+                
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.5" >
+
+                <Button 
+                    android:visibility="invisible"
+                    android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center"
+			        android:drawableTop="@drawable/ic_launcher"
+			        android:background="#80000000"
+			        android:textColor="#ffffff" />
+                
+            </FrameLayout>
+            
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>
