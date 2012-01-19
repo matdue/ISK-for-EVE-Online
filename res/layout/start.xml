@@ -73,10 +73,10 @@
 			        android:layout_height="wrap_content"
 			        android:layout_gravity="center"
 			        android:background="#80000000"
-			        android:drawablePadding="8sp"
+			        android:drawablePadding="10sp"
 			        android:drawableTop="@drawable/ic_launcher"
 			        android:text="@string/start_wallet"
-			        android:textAppearance="?android:attr/textAppearanceMedium"
+			        android:textAppearance="?android:attr/textAppearanceLarge"
 			        android:textColor="#ffffff" />
 		
             </FrameLayout>
@@ -91,10 +91,10 @@
 			        android:layout_height="wrap_content"
 			        android:layout_gravity="center"
 			        android:background="#80000000"
-			        android:drawablePadding="8sp"
+			        android:drawablePadding="10sp"
 			        android:drawableTop="@drawable/ic_launcher"
 			        android:text="@string/start_pilots"
-			        android:textAppearance="?android:attr/textAppearanceMedium"
+			        android:textAppearance="?android:attr/textAppearanceLarge"
 			        android:textColor="#ffffff" />
                 
             </FrameLayout>
