@@ -101,9 +101,6 @@ public class WalletActivity extends ListActivity {
 			switch (cursor.getInt(2)) {
 			case 2:
 				// Market transaction
-				formatMarketTransaction(viewHolder, context, cursor, true);
-				break;
-				
 			case 42:
 				// Market escrow
 				

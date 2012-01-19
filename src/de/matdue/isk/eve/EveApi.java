@@ -280,39 +280,6 @@ public class EveApi {
 		CacheInformation cacheInformation = new CacheInformation();
 		
 		
-		// Wallet journal
-		ArrayList<WalletJournal> walletJournal = new ArrayList<WalletJournal>();
-		
-		// Prepare XML parser
-		ArrayList<WalletJournal> walletJournalBatch = new ArrayList<WalletJournal>();
-		RootElement root = prepareWalletJournalXmlParser(walletJournalBatch, cacheInformation);
-		
-		// Query in batches of 2560 entries
-		if (!queryApi(root.getContentHandler(), journalURL, keyID, vCode, characterID, "2560", null)) {
-			return null;
-		}
-		Log.d("EveApi", "Journals loaded: " + walletJournalBatch.size());
-		while (walletJournalBatch.size() == 2560) {
-			// Find lowest refID
-			long lowestRefID = Long.MAX_VALUE;
-			for (WalletJournal journalEntry : walletJournalBatch) {
-				lowestRefID = Math.min(lowestRefID, journalEntry.refID);
-			}
-			
-			// Query next batch
-			if (!queryApi(root.getContentHandler(), journalURL, keyID, vCode, characterID, "2560", Long.toString(lowestRefID))) {
-				return null;
-			}
-			Log.d("EveApi", "Journals loaded: " + walletJournalBatch.size());
-			
-			// Finish batch
-			walletJournal.addAll(walletJournalBatch);
-			walletJournalBatch.clear();
-		}
-		walletJournal.addAll(walletJournalBatch);
-		walletJournalBatch.clear();
-		
-		
 		// Wallet transactions
 		// With transaction ID as key
 		HashMap<Long, WalletTransaction> walletTransactionsById = new HashMap<Long, WalletTransaction>();
@@ -322,7 +289,7 @@ public class EveApi {
 		// Prepare XML parser
 		HashMap<Long, WalletTransaction> walletTransactionsByIdBatch = new HashMap<Long, WalletTransaction>();
 		HashMap<Long, WalletTransaction> walletTransactionsByJournalIdBatch = new HashMap<Long, WalletTransaction>();
-		root = prepareWalletTransactionXmlParser(walletTransactionsByIdBatch, walletTransactionsByJournalIdBatch, cacheInformation);
+		RootElement root = prepareWalletTransactionXmlParser(walletTransactionsByIdBatch, walletTransactionsByJournalIdBatch, cacheInformation);
 		
 		// Query in batches of 2560 entries
 		if (!queryApi(root.getContentHandler(), transactionsURL, keyID, vCode, characterID, "2560", null)) {
@@ -352,6 +319,39 @@ public class EveApi {
 		walletTransactionsByIdBatch.clear();
 		walletTransactionsByJournalId.putAll(walletTransactionsByJournalIdBatch);
 		walletTransactionsByJournalIdBatch.clear();
+		
+		
+		// Wallet journal
+		ArrayList<WalletJournal> walletJournal = new ArrayList<WalletJournal>();
+		
+		// Prepare XML parser
+		ArrayList<WalletJournal> walletJournalBatch = new ArrayList<WalletJournal>();
+		root = prepareWalletJournalXmlParser(walletJournalBatch, cacheInformation);
+		
+		// Query in batches of 2560 entries
+		if (!queryApi(root.getContentHandler(), journalURL, keyID, vCode, characterID, "2560", null)) {
+			return null;
+		}
+		Log.d("EveApi", "Journals loaded: " + walletJournalBatch.size());
+		while (walletJournalBatch.size() == 2560) {
+			// Find lowest refID
+			long lowestRefID = Long.MAX_VALUE;
+			for (WalletJournal journalEntry : walletJournalBatch) {
+				lowestRefID = Math.min(lowestRefID, journalEntry.refID);
+			}
+			
+			// Query next batch
+			if (!queryApi(root.getContentHandler(), journalURL, keyID, vCode, characterID, "2560", Long.toString(lowestRefID))) {
+				return null;
+			}
+			Log.d("EveApi", "Journals loaded: " + walletJournalBatch.size());
+			
+			// Finish batch
+			walletJournal.addAll(walletJournalBatch);
+			walletJournalBatch.clear();
+		}
+		walletJournal.addAll(walletJournalBatch);
+		walletJournalBatch.clear();
 		
 		
 		// Save all transactions; we need it later
