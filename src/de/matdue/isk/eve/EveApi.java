@@ -374,6 +374,16 @@ public class EveApi {
 				WalletTransaction transaction = walletTransactionsByJournalId.get(journalEntry.refID);
 				journalEntry.transaction = transaction;
 				allTransactions.remove(transaction);
+				
+				// Check if amount in journal entry equals to sum in transaction
+				//if (transaction != null) {
+					//BigDecimal transactionSum = transaction.price.multiply(new BigDecimal(transaction.quantity));
+					//if (transactionSum.compareTo(journalEntry.amount) != 0) {
+						// Some items have been payed by market escrow, some items have been payed by wallet
+						// Unfortunately, number of items may be fractional.
+						// That's why we don't handle this special case.
+					//}
+				//}
 			}
 		}
 		
