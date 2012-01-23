@@ -429,12 +429,14 @@ public class IskDatabase extends SQLiteOpenHelper {
 	public void storeEveWallet(String characterId, List<Wallet> wallets) {
 		try {
 			SQLiteDatabase db = getWritableDatabase();
-			db.delete(WalletTable.TABLE_NAME, 
-					WalletColumns.CHARACTER_ID + "=?", 
-					new String[] { characterId });
-			
 			InsertHelper insertHelper = new InsertHelper(db, WalletTable.TABLE_NAME);
 			try {
+				db.beginTransaction();
+				
+				db.delete(WalletTable.TABLE_NAME, 
+						WalletColumns.CHARACTER_ID + "=?", 
+						new String[] { characterId });
+				
 				for (Wallet wallet : wallets) {
 					ContentValues values = new ContentValues();
 					values.put(WalletColumns.CHARACTER_ID, characterId);
@@ -453,7 +455,10 @@ public class IskDatabase extends SQLiteOpenHelper {
 					values.put(WalletColumns.TRANSACTION_FOR, wallet.transactionFor);
 					insertHelper.insert(values);
 				}
+				
+				db.setTransactionSuccessful();
 			} finally {
+				db.endTransaction();
 				insertHelper.close();
 			}
 		} catch (Exception e) {
