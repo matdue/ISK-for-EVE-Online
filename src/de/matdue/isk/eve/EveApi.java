@@ -406,6 +406,11 @@ public class EveApi {
 			walletJournal.add(fakeJournal);
 		}
 		
+		// Empty journal indicates some temporary error in API
+		if (walletJournal.isEmpty()) {
+			return null;
+		}
+		
 		return walletJournal;
 	}
 	
