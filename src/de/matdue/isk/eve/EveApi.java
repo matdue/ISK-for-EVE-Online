@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TimeZone;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
@@ -55,7 +57,7 @@ public class EveApi {
 	}
 	
 	private boolean queryApi(ContentHandler xmlParser, String url, String keyID, String vCode, String characterID, String rowCount, String fromID) {
-		AndroidHttpClient httpClient = null;
+		HttpClient httpClient = null;
 		HttpEntity entity = null;
 		InputStream inputStream = null;
 		
@@ -63,6 +65,7 @@ public class EveApi {
 			// Create request
 			httpClient = AndroidHttpClient.newInstance(AGENT);
 			HttpPost request = new HttpPost(URL_BASE + url);
+			AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 			
 			// Prepare parameters
 			ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -93,7 +96,7 @@ public class EveApi {
 			}
 			
 			entity = response.getEntity();
-			inputStream = entity.getContent();
+			inputStream = AndroidHttpClient.getUngzippedContent(entity);
 			Xml.parse(inputStream, Encoding.UTF_8, xmlParser);
 		} catch (Exception e) {
 			Log.e(EveApi.class.toString(), "Error in API communication", e);
@@ -113,8 +116,8 @@ public class EveApi {
 					// Ignore error while closing, there's nothing we could do
 				}
 			}
-			if (httpClient != null) {
-				httpClient.close();
+			if (httpClient != null && httpClient instanceof AndroidHttpClient) {
+				((AndroidHttpClient) httpClient).close();
 			}
 		}
 		
