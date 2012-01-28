@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dip"
         android:clickable="true" >
-
+
         <ImageView
             android:id="@+id/start_character_image"
             android:layout_width="64dip"
@@ -20,10 +20,11 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_margin="3dip"
+            android:contentDescription="@string/start_character_portrait"
             android:maxHeight="64dip"
             android:maxWidth="64dip"
-            android:contentDescription="@string/start_character_portrait"
-            android:scaleType="centerInside" />
+            android:scaleType="centerInside"
+            android:src="@drawable/unknown_character_1_128" />
 
         <ImageView
             android:id="@+id/start_character_choose"
