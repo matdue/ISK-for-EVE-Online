@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
@@ -39,18 +40,30 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		
 		// Skip update if no network is available
 		if (!isNetworkAvailable()) {
+			sendEmptyResponseIntent();
 			return;
 		}
 		
-		// Skip update if global sync is switched off
-		boolean honorGlobalSync = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean("honorGlobalSync", true);
-		if (honorGlobalSync && !ContentResolver.getMasterSyncAutomatically()) {
-			return;
+		boolean forcedUpdate = intent.getBooleanExtra("force", false);
+
+		if (!forcedUpdate) {
+			// Skip update if WIFI inactive, but required
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+			boolean requireWifi = sharedPreferences.getBoolean("requireWifi", false);
+			if (requireWifi && !isWifiConnected()) {
+				sendEmptyResponseIntent();
+				return;
+			}
+			
+			// Skip update if global sync is switched off
+			boolean honorGlobalSync = sharedPreferences.getBoolean("honorGlobalSync", true);
+			if (honorGlobalSync && !ContentResolver.getMasterSyncAutomatically()) {
+				sendEmptyResponseIntent();
+				return;
+			}
 		}
 		
 		try {
-			boolean forcedUpdate = intent.getBooleanExtra("force", false);
-			
 			iskDatabase = new IskDatabase(this);
 			eveApi = new EveApi(new EveApiCacheDatabase(forcedUpdate));
 			
@@ -64,9 +77,14 @@ public class EveApiUpdaterService extends WakefulIntentService {
 			}
 		} catch (Exception e) {
 			Log.e("EveApiUpdaterService",  "Error while performing update", e);
+			sendEmptyResponseIntent();
 		} finally {
 			iskDatabase.close();
 		}
+	}
+	
+	private void sendEmptyResponseIntent() {
+		sendBroadcast(new Intent(ACTION_RESP).addCategory(Intent.CATEGORY_DEFAULT));
 	}
 	
 	/**
@@ -76,6 +94,15 @@ public class EveApiUpdaterService extends WakefulIntentService {
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 		return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+	}
+	
+	/**
+	 * WIFI detection
+	 */
+	private boolean isWifiConnected() {
+		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI && activeNetworkInfo.isConnectedOrConnecting();
 	}
 
 	/**
