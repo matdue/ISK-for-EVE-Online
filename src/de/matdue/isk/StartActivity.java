@@ -86,6 +86,14 @@ public class StartActivity extends Activity {
 			}
 		});
 		
+		Button aboutButton = (Button) findViewById(R.id.about);
+		aboutButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(StartActivity.this, AboutActivity.class));
+			}
+		});
+		
 		View balanceLayout = findViewById(R.id.start_balance_layout);
 		balanceLayout.setOnClickListener(new OnClickListener() {
 			@Override

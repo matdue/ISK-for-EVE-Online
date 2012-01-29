@@ -131,15 +131,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_weight="0.5" >
-
-                <Button 
-                    android:visibility="invisible"
+
+                <Button
+                    android:id="@+id/about"
                     android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:layout_gravity="center"
-			        android:drawableTop="@drawable/ic_launcher"
-			        android:background="#80000000"
-			        android:textColor="#ffffff" />
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:drawablePadding="10sp"
+                    android:drawableTop="@drawable/ic_start_about"
+                    android:text="@string/start_about"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@android:color/white" />
                 
             </FrameLayout>
             

@@ -3,9 +3,11 @@
 
     <string name="hello">Hello World, ISKforEVEOnlineActivity!</string>
     <string name="app_name">ISK</string>
+    <string name="app_description">ISK for EVE Online</string>
     <string name="launcher_app_name">ISK</string>
     <string name="start_pilots">Pilots</string>
     <string name="start_wallet">Wallet</string>
+    <string name="start_about">About</string>
     <string name="pilots_title">Pilots</string>
     <string name="pilots_context_remove">Remove API key</string>
     <string name="pilots_optmenu_add">Hinzufügen</string>
@@ -47,5 +49,10 @@
     <string name="wallet_corp_sell">Corporation sell to\u00A0</string>
     <string name="wallet_taxes">Tax</string>
     <string name="wallet_quantity_symbol">\u00A0\u00D7\u00A0</string>
+    <string name="about_title">About ISK</string>
+    <string name="about_version">ISK for EVE Online 1.0</string>
+    <string name="about_copyright">Copyright \u00A9 2012 Matthias Düsterhöft</string>
+    <string name="about_ccp">EVE Online and the EVE logo are the registered trademarks of CCP hf. All rights are reserved worldwide. All other trademarks are the property of their respective owners. EVE Online, the EVE logo, EVE and all associated logos and designs are the intellectual property of CCP hf. All artwork, screenshots, characters, vehicles, storylines, world facts or other recognizable features of the intellectual property relating to these trademarks are likewise the intellectual property of CCP hf. CCP hf. has granted permission to Matthias Düsterhöft to use EVE Online and all associated logos and designs for promotional and information purposes in its app but does not endorse, and is not in any way affiliated with, Matthias Düsterhöft. CCP is in no way responsible for the content in or functioning of this app, nor can it be liable for any damage arising from the use of this app.</string>
+    <string name="about_icons">Icons are designed by IconEden (http://www.iconeden.com/) and Jack Cai (http://www.doublejdesign.co.uk/).</string>
     
 </resources>
