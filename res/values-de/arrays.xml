@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="update_interval">
+		<item>Stündlich</item>
+		<item>Alle 2 Stunden</item>
+		<item>Alle 4 Stunden</item>
+		<item>Alle 8 Stunden</item>
+		<item>2x täglich</item>
+		<item>Täglich</item>
+		<item>Nur manuell</item>
+	</string-array>    
+</resources>
