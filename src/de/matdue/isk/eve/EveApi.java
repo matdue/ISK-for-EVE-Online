@@ -1,6 +1,5 @@
 package de.matdue.isk.eve;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -98,30 +97,35 @@ public class EveApi {
 			entity = response.getEntity();
 			inputStream = AndroidHttpClient.getUngzippedContent(entity);
 			Xml.parse(inputStream, Encoding.UTF_8, xmlParser);
+			
+			return true;
 		} catch (Exception e) {
 			Log.e(EveApi.class.toString(), "Error in API communication", e);
-			return false;
 		} finally {
 			if (inputStream != null) {
 				try {
 					inputStream.close();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					// Ignore error while closing, there's nothing we could do
 				}
 			}
 			if (entity != null) {
 				try {
 					entity.consumeContent();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					// Ignore error while closing, there's nothing we could do
 				}
 			}
 			if (httpClient != null && httpClient instanceof AndroidHttpClient) {
-				((AndroidHttpClient) httpClient).close();
+				try {
+					((AndroidHttpClient) httpClient).close();
+				} catch (Exception e) {
+					// Ignore error while closing, there's nothing we could do
+				}
 			}
 		}
 		
-		return true;
+		return false;
 	}
 	
 	public Account validateKey(String keyID, String vCode) {
