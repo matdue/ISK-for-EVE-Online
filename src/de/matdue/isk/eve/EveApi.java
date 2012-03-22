@@ -100,6 +100,8 @@ public class EveApi {
 			
 			return true;
 		} catch (Exception e) {
+			String message = e.getMessage();
+			apiCache.urlAccessed(url, keyID, message != null ? message : e.toString());
 			Log.e(EveApi.class.toString(), "Error in API communication", e);
 		} finally {
 			if (inputStream != null) {
