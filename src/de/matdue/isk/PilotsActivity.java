@@ -113,10 +113,6 @@ public class PilotsActivity extends ExpandableListActivity {
 				// Update current character by removing it, if applicable
 				setCurrentCharacter();
 				return true;
-				
-			case R.id.pilots_context_refresh:
-				// TODO: Implementation
-				return true;
 			}
 		}
 

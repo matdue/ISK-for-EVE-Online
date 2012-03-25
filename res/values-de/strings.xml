@@ -11,7 +11,6 @@
     <string name="pilots_title">Piloten</string>
     <string name="pilots_context_remove">API-Key entfernen</string>
     <string name="pilots_optmenu_add">Hinzufügen</string>
-    <string name="pilots_optmenu_refresh">Aktualisieren</string>
     <string name="pilots_key_intro">Fügen Sie einen Key hinzu, indem Sie ihn aus der Liste der API-Keys auswählen, oder geben Sie die Daten manuell ein. Sie können auch einen neuen API-Key mit dieser App erstellen.</string>
     <string name="pilots_key_first">1. Key auswählen\n\nIn einem Browser-Fenster können Sie einen bereits vorhandenen Key auswählen, indem sie den Install-Link antippen. Der Browser zeigt eine offizielle EVE Online an, wo Sie sich mit Ihren EVE Online-Logindaten anmelden müssen.</string>
     <string name="pilots_key_second">2. Neuen Key erstellen\n\nWenn Sie für diese App einen eigenen Key benutzen möchten, können Sie hier einen neuen erstellen. Bitte verändern Sie nicht die Access Mask. Nach Abschluss gehen Sie zu dieser App zurück und wählen den neuen Key aus wie in Punkt 1 beschrieben.</string>
@@ -26,7 +25,6 @@
     <string name="pilots_key_error_validate">API-Key konnte nicht geprüft werden, bitte wiederholen Sie den Vorgang.</string>
     <string name="pilots_key_error_accessmask">API-Key hat nicht genügend Rechte. Bitte prüfen.</string>
     <string name="pilots_key_error_type">Nur Character-Keys sind möglich.</string>
-    <string name="pilots_context_refresh">Piloten neu laden</string>
     <string name="start_character_portrait">Pilot-Portrait</string>
     <string name="start_character_choose">Pilot wählen</string>
     <string name="start_optmenu_history">Aktualisierungen</string>
