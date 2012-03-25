@@ -26,9 +26,9 @@
     <string name="pilots_key_error_validate">Unable to verify API key, please try again.</string>
     <string name="pilots_key_error_accessmask">Insufficient access mask. Please check API key.</string>
     <string name="pilots_key_error_type">Character key only is allowed.</string>
-    <string name="pilots_context_refresh">Refresh characters</string>
-    <string name="start_character_portrait">Character portrait</string>
-    <string name="start_character_choose">Choose character</string>
+    <string name="pilots_context_refresh">Refresh pilots</string>
+    <string name="start_character_portrait">Pilot´s portrait</string>
+    <string name="start_character_choose">Choose pilot</string>
     <string name="start_optmenu_history">History</string>
     <string name="history_title">History</string>
     <string name="history_no_data">No data</string>
