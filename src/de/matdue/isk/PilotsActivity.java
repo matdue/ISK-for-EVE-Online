@@ -321,9 +321,21 @@ public class PilotsActivity extends ExpandableListActivity {
 					Integer currentPosition = (Integer) buttonView.getTag();
 					if (cursor.moveToPosition(currentPosition)) {
 						long id = cursor.getLong(0);
+						String uncheckedCharacterID = cursor.getString(3);
 						iskDatabase.setCharacterSelection(id, isChecked);
 
 						notifyDataSetChanged(true);
+						
+						// Make sure deselected character is not shown on start page any more
+						if (!isChecked) {
+							SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+							String characterID = preferences.getString("startCharacterID", null);
+							if (uncheckedCharacterID.equals(characterID)) {
+								Editor editor = preferences.edit();
+								editor.remove("startCharacterID");
+								editor.apply();
+							}
+						}
 					}
 				}
 

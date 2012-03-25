@@ -248,6 +248,18 @@ public class StartActivity extends Activity {
 		}.execute(characterId);
 	}
 	
+	private void clearCharacter() {
+		TextView characterNameView = (TextView) findViewById(R.id.start_character_name);
+		characterNameView.setText("");
+		characterNameView.setTag(null);
+		
+		TextView balanceView = (TextView) findViewById(R.id.start_character_balance);
+		balanceView.setText("");
+		
+		ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
+		imageView.setImageResource(R.drawable.unknown_character_1_128);
+	}
+	
 	private void showChooseCharacterDialog(String currentCharacterID) {
 		final List<Character> characters = iskDatabase.queryAllCharacters();
 		if (characters.isEmpty()) {
@@ -304,6 +316,8 @@ public class StartActivity extends Activity {
 		String characterID = preferences.getString("startCharacterID", null);
 		if (characterID != null) {
 			updateCharacter(characterID);
+		} else {
+			clearCharacter();
 		}
 	}
 	
