@@ -8,8 +8,8 @@
     <string name="start_pilots">Piloten</string>
     <string name="start_wallet">Konto</string>
     <string name="start_about">Über</string>
-    <string name="start_dialog_welcome">Welcome!\n\nISK for EVE Online allows you to watch your pilot's wallet at any time.\n\nTap the pilot icon and select the pod pilots you would like to watch.</string>
-    <string name="start_dialog_welcome_close">Close</string>
+    <string name="start_dialog_welcome">Willkommen!\n\nMit ISK für EVE Online können Sie jederzeit den Kontostand Ihrer Piloten einsehen.\n\nTippen Sie auf das Piloten-Icon und bestimmen Sie, welche Kapselpiloten Sie beobachten möchten.</string>
+    <string name="start_dialog_welcome_close">Schließen</string>
     <string name="pilots_title">Piloten</string>
     <string name="pilots_context_remove">API-Key entfernen</string>
     <string name="pilots_optmenu_add">Hinzufügen</string>
