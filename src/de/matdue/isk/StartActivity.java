@@ -10,6 +10,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,6 +42,9 @@ public class StartActivity extends Activity {
 	
 	// Message to hide progress bar
 	private static final int HIDE_PROGRESS_BAR_INDETERMINATE = 0;
+	
+	// Dialogs
+	private static final int DIALOG_WELCOME = 0;
 	
 	// Handler for
 	// - stop progress bar by message
@@ -106,6 +110,8 @@ public class StartActivity extends Activity {
 		
 		// Make sure update service to be called regularly
 		WakefulIntentService.scheduleAlarms(new EveApiUpdaterListener(), getApplicationContext(), false);
+		
+		showWelcomeDialog();
 	}
 	
 	@Override
@@ -179,6 +185,43 @@ public class StartActivity extends Activity {
 			
 		default:
 			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	@Override
+	protected Dialog onCreateDialog(int id, Bundle args) {
+		Dialog dialog = null;
+		switch (id) {
+		case DIALOG_WELCOME:
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder
+				.setMessage(R.string.start_dialog_welcome)
+				.setNeutralButton(R.string.start_dialog_welcome_close, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+						preferences
+							.edit()
+							.putBoolean("welcomed", true)
+							.commit();
+						dialog.dismiss();
+					}
+				});
+			dialog = builder.create();
+			break;
+		}
+		
+		return dialog;
+	}
+	
+	/**
+	 * Show a Welcome! dialog
+	 */
+	private void showWelcomeDialog() {
+		SharedPreferences preferences = getSharedPreferences("de.matdue.isk", MODE_PRIVATE);
+		boolean welcomed = preferences.getBoolean("welcomed", false);
+		if (!welcomed) {
+			showDialog(DIALOG_WELCOME);
 		}
 	}
 	
