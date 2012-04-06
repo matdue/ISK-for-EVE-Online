@@ -1,5 +1,6 @@
 package de.matdue.isk.eve;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -95,7 +96,7 @@ public class EveApi {
 			}
 			
 			entity = response.getEntity();
-			inputStream = AndroidHttpClient.getUngzippedContent(entity);
+			inputStream = new BufferedInputStream(AndroidHttpClient.getUngzippedContent(entity));
 			Xml.parse(inputStream, Encoding.UTF_8, xmlParser);
 			
 			return true;
