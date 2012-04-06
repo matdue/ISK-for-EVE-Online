@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -275,7 +276,7 @@ public class StartActivity extends Activity {
 				// Character portrait
 				ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
 				String imageUrl = de.matdue.isk.eve.Character.getCharacterUrl(characterID, 128);
-				bitmapManager.setLoadingBitmap(R.drawable.unknown_character_1_128);
+				bitmapManager.setLoadingColor(Color.TRANSPARENT);
 				bitmapManager.setImageBitmap(imageView, imageUrl);
 				
 				// Balance
@@ -300,7 +301,7 @@ public class StartActivity extends Activity {
 		balanceView.setText("");
 		
 		ImageView imageView = (ImageView) findViewById(R.id.start_character_image);
-		imageView.setImageResource(R.drawable.unknown_character_1_128);
+		imageView.setImageResource(R.color.transparent);
 	}
 	
 	private void showChooseCharacterDialog(String currentCharacterID) {

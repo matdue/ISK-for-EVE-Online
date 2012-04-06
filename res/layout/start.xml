@@ -23,7 +23,7 @@
             android:maxHeight="64dip"
             android:maxWidth="64dip"
             android:scaleType="centerInside"
-            android:src="@drawable/unknown_character_1_128" />
+            android:src="@android:color/transparent" />
 
         <ImageView
             android:id="@+id/start_character_choose"
