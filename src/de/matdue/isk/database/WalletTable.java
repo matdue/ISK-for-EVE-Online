@@ -15,6 +15,7 @@ public static final String TABLE_NAME = "wallet";
 		TAX_AMOUNT + " TEXT," +
 		QUANTITY + " INTEGER," +
 		TYPE_NAME + " TEXT," +
+		TYPE_ID + " TEXT," +
 		PRICE + " TEXT," +
 		CLIENT_NAME + " TEXT," +
 		STATION_NAME + " TEXT," +

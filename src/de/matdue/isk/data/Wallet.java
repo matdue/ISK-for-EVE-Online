@@ -15,6 +15,7 @@ public class Wallet {
 	
 	public int quantity;
 	public String typeName;
+	public String typeID;
 	public BigDecimal price;
 	public String clientName;
 	public String stationName;

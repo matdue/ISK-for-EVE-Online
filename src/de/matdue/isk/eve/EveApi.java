@@ -470,6 +470,7 @@ public class EveApi {
 					transaction.transactionID = transactionID;
 					transaction.quantity = Integer.parseInt(attributes.getValue("quantity"));
 					transaction.typeName = attributes.getValue("typeName");
+					transaction.typeID = attributes.getValue("typeID");
 					transaction.price = new BigDecimal(attributes.getValue("price"));
 					transaction.clientName = attributes.getValue("clientName");
 					transaction.stationName = attributes.getValue("stationName");

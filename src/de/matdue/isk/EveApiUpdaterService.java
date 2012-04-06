@@ -170,6 +170,7 @@ public class EveApiUpdaterService extends WakefulIntentService {
 					if (walletJournalEntry.transaction != null) {
 						walletData.quantity = walletJournalEntry.transaction.quantity;
 						walletData.typeName = walletJournalEntry.transaction.typeName;
+						walletData.typeID = walletJournalEntry.transaction.typeID;
 						walletData.price = walletJournalEntry.transaction.price;
 						walletData.clientName = walletJournalEntry.transaction.clientName;
 						walletData.stationName = walletJournalEntry.transaction.stationName;

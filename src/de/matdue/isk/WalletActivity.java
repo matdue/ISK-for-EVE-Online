@@ -6,11 +6,14 @@ import java.text.NumberFormat;
 import java.util.Date;
 
 import de.matdue.isk.database.IskDatabase;
+import de.matdue.isk.ui.BitmapManager;
 import android.app.ListActivity;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 public class WalletActivity extends ListActivity {
 	
 	private IskDatabase iskDatabase;
+	private BitmapManager bitmapManager;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +30,8 @@ public class WalletActivity extends ListActivity {
 		setContentView(R.layout.wallet);
 		
 		iskDatabase = new IskDatabase(this);
+		bitmapManager = new BitmapManager(this, getCacheDir());
+		
 		String characterId = getIntent().getStringExtra("characterID");
 		Cursor walletCursor = iskDatabase.getEveWallet(characterId);
 		ListAdapter adapter = new WalletAdapter(this, 
@@ -39,6 +45,7 @@ public class WalletActivity extends ListActivity {
 		super.onDestroy();
 		
 		iskDatabase.close();
+		bitmapManager.shutdown();
 	}
 	
 	class WalletAdapter extends ResourceCursorAdapter {
@@ -86,6 +93,7 @@ public class WalletActivity extends ListActivity {
 				viewHolder.marketPartner = (TextView) view.findViewById(R.id.wallet_entry_market_partner);
 				viewHolder.marketStation = (TextView) view.findViewById(R.id.wallet_entry_market_station);
 				viewHolder.marketItem = (TextView) view.findViewById(R.id.wallet_entry_market_item);
+				viewHolder.marketItemImage = (ImageView) view.findViewById(R.id.wallet_entry_market_item_image);
 				viewHolder.marketQuantity = (TextView) view.findViewById(R.id.wallet_entry_market_quantity);
 				viewHolder.marketSinglePrice = (TextView) view.findViewById(R.id.wallet_entry_market_single_price);
 				viewHolder.marketTotalPrice = (TextView) view.findViewById(R.id.wallet_entry_market_total_price);
@@ -147,6 +155,9 @@ public class WalletActivity extends ListActivity {
 			viewHolder.marketPartner.setText(cursor.getString(11));
 			viewHolder.marketStation.setText(cursor.getString(12));
 			viewHolder.marketItem.setText(cursor.getString(9));
+			String imageUrl = de.matdue.isk.eve.WalletTransaction.getTypeUrl(cursor.getString(15), 64);
+			bitmapManager.setLoadingColor(Color.TRANSPARENT);
+			bitmapManager.setImageBitmap(viewHolder.marketItemImage, imageUrl);
 			
 			int quantity = cursor.getInt(8);
 			viewHolder.marketQuantity.setText(integerFormatter.format(quantity));
@@ -206,6 +217,7 @@ public class WalletActivity extends ListActivity {
 			TextView marketPartner;
 			TextView marketStation;
 			TextView marketItem;
+			ImageView marketItemImage;
 			TextView marketQuantity;
 			TextView marketSinglePrice;
 			TextView marketTotalPrice;

@@ -11,6 +11,7 @@ public interface WalletColumns {
 	public static final String TAX_AMOUNT = "taxAmount";
 	public static final String QUANTITY = "quantity";
 	public static final String TYPE_NAME = "typeName";
+	public static final String TYPE_ID = "typeID";
 	public static final String PRICE = "price";
 	public static final String CLIENT_NAME = "clientName";
 	public static final String STATION_NAME = "stationName";

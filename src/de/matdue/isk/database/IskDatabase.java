@@ -19,7 +19,7 @@ import android.util.Log;
 public class IskDatabase extends SQLiteOpenHelper {
 	
 	private static final String DATABASE_NAME = "isk.db";
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 	
 	public IskDatabase(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -448,6 +448,7 @@ public class IskDatabase extends SQLiteOpenHelper {
 					values.put(WalletColumns.TAX_AMOUNT, wallet.taxAmount.toString());
 					values.put(WalletColumns.QUANTITY, wallet.quantity);
 					values.put(WalletColumns.TYPE_NAME, wallet.typeName);
+					values.put(WalletColumns.TYPE_ID, wallet.typeID);
 					values.put(WalletColumns.PRICE, wallet.price != null ? wallet.price.toString() : null);
 					values.put(WalletColumns.CLIENT_NAME, wallet.clientName);
 					values.put(WalletColumns.STATION_NAME, wallet.stationName);
@@ -485,7 +486,8 @@ public class IskDatabase extends SQLiteOpenHelper {
 					WalletColumns.CLIENT_NAME,
 					WalletColumns.STATION_NAME,
 					WalletColumns.TRANSACTION_TYPE,
-					WalletColumns.TRANSACTION_FOR
+					WalletColumns.TRANSACTION_FOR,
+					WalletColumns.TYPE_ID
 				},
 				WalletColumns.CHARACTER_ID + "=?",  // where
 				new String[] { characterId },  // where arguments
