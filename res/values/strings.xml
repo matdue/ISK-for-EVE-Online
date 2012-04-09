@@ -49,6 +49,7 @@
     <string name="wallet_corp_sell">Corporation sell to\u00A0</string>
     <string name="wallet_taxes">Tax</string>
     <string name="wallet_quantity_symbol">\u00A0\u00D7\u00A0</string>
+    <string name="wallet_item_image">Item image</string>
     <string name="about_title">About ISK</string>
     <string name="about_version">ISK for EVE Online 1.0</string>
     <string name="about_copyright">Copyright \u00A9 2012 Matthias Düsterhöft</string>
